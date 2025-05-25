@@ -123,7 +123,7 @@ const handleFormSubmit = (e) => {
 
   setTimeout(() => {
     const greeting = isFrench ? "Amani à vous! Je réfléchis..." : (isEnglish ? "Peace to you! Thinking..." : "Amani!");
-    const botMsgHTML = `<img class="avatar" src="assets/avatar.png" /> <p class="message-text">${greeting}</p>`;
+    const botMsgHTML = `<img class="avatar" src="avatar.png" /> <p class="message-text">${greeting}</p>`;
     const botMsgDiv = createMessageElement(botMsgHTML, "bot-message", "loading");
     chatsContainer.appendChild(botMsgDiv);
     scrollToBottom();
