@@ -90,11 +90,28 @@
       });
     });
   </script>
+  <style>.app-logo {
+  max-width: 100%;
+  height: auto; /* Maintient le ratio */
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 1rem; /* Centrage et espacement */
+}
+
+/* Version responsive */
+@media (max-width: 768px) {
+  .app-logo {
+    width: 90px;
+    height: 30px;
+  }
+}</style>
 </head>
 <body>
   <div class="container">
     <header class="app-header">
-      <img src="assets/avatar.png" alt="Logo Amani Chat" class="app-logo">
+      <img src="assets/avatar.png" alt="Logo Amani Chat" class="app-logo"width="120" 
+       height="40"
+       loading="lazy">
       <h1 class="heading">Hello, there</h1>
       <h4 class="sub-heading">How can I help you today?</h4>
     </header>
