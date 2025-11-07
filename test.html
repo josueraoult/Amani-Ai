@@ -1,1 +1,1347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinX - SmartPredict</title>
+    <!-- Framework CSS léger -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <!-- Police Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- GSAP pour animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --accent: #00c6ff;
+            --dark: #0b0b0f;
+            --darker: #07070a;
+            --light: #f8f9fa;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #e84393;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --card-bg: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(16, 16, 32, 0.9));
+            --neon-glow: 0 0 10px rgba(106, 17, 203, 0.7), 0 0 20px rgba(37, 117, 252, 0.5);
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(106, 17, 203, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(37, 117, 252, 0.15) 0%, transparent 20%);
+        }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            text-shadow: var(--neon-glow);
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(11, 11, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(106, 17, 203, 0.2);
+            color: var(--accent);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--neon-glow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(106, 17, 203, 0.1);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--card-bg);
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--neon-glow);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Predictions Grid */
+        .predictions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .prediction-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prediction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--neon-glow);
+        }
+
+        .prediction-card.vip {
+            border: 1px solid var(--warning);
+            box-shadow: 0 0 15px rgba(253, 203, 110, 0.3);
+        }
+
+        .prediction-card.combo {
+            border: 1px solid var(--success);
+            box-shadow: 0 0 15px rgba(0, 184, 148, 0.3);
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-vip {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .badge-combo {
+            background: var(--success);
+            color: white;
+        }
+
+        .match-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+        }
+
+        .team-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .team-name {
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .vs {
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .match-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .confidence-level {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--danger), var(--warning), var(--success));
+        }
+
+        .prediction-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .prediction-odds {
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .ai-analysis {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 198, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            background: var(--card-bg);
+            border-radius: 50px;
+            padding: 0.5rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.8rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+        }
+
+        /* User Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .dashboard-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .dashboard-card h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .gem-count {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--warning);
+            margin: 1rem 0;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--neon-glow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: var(--light);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--darker);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .predictions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(106, 17, 203, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(106, 17, 203, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(106, 17, 203, 0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="logo-container">
+            <div class="logo">WinX</div>
+            <div class="tagline">SmartPredict - Prédictions Football Intelligentes</div>
+        </div>
+        <div class="loader"></div>
+        <p>Chargement de l'expérience optimisée...</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-logo">WinX</div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-page="home">Accueil</a>
+                <a href="#" class="nav-link" data-page="predictions">Prédictions</a>
+                <a href="#" class="nav-link" data-page="vip">VIP</a>
+                <a href="#" class="nav-link" data-page="account">Mon Compte</a>
+            </div>
+            <div class="user-actions">
+                <button class="btn btn-outline" id="login-btn">Connexion</button>
+                <button class="btn btn-primary" id="register-btn">Inscription</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Home Page -->
+        <section id="home-page" class="page active">
+            <div class="hero">
+                <h1>Prédictions Football Intelligentes</h1>
+                <p>Notre algorithme IA analyse des centaines de données pour vous offrir les prédictions les plus précises du marché. Essayez gratuitement pendant 24h !</p>
+                <button class="btn btn-primary pulse" id="trial-btn">Commencer l'essai gratuit</button>
+            </div>
+
+            <h2 class="section-title">Prédictions du Jour</h2>
+            
+            <div class="tabs">
+                <div class="tab active" data-category="all">Toutes</div>
+                <div class="tab" data-category="combo">Combo</div>
+                <div class="tab" data-category="vip">VIP</div>
+            </div>
+
+            <div class="predictions-grid" id="predictions-container">
+                <!-- Les prédictions seront générées dynamiquement par JavaScript -->
+            </div>
+
+            <h2 class="section-title">Pourquoi Choisir WinX ?</h2>
+            
+            <div class="dashboard">
+                <div class="dashboard-card">
+                    <i>🤖</i>
+                    <h3>Algorithme IA Avancé</h3>
+                    <p>Notre intelligence artificielle analyse forme, statistiques et facteurs externes pour des prédictions précises.</p>
+                </div>
+                <div class="dashboard-card">
+                    <i>⚡</i>
+                    <h3>Résultats en Temps Réel</h3>
+                    <p>Mises à jour en direct des cotes et des analyses jusqu'au coup d'envoi.</p>
+                </div>
+                <div class="dashboard-card">
+                    <i>💰</i>
+                    <h3>Rentabilité Élevée</h3>
+                    <p>Notre communauté rapporte un ROI moyen de 15% par mois avec nos prédictions.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Predictions Page -->
+        <section id="predictions-page" class="page">
+            <h2 class="section-title">Toutes les Prédictions</h2>
+            
+            <div class="tabs">
+                <div class="tab active" data-category="all">Toutes</div>
+                <div class="tab" data-category="combo">Combo</div>
+                <div class="tab" data-category="vip">VIP</div>
+                <div class="tab" data-category="unique">Unique</div>
+            </div>
+
+            <div class="predictions-grid" id="all-predictions-container">
+                <!-- Toutes les prédictions seront générées ici -->
+            </div>
+        </section>
+
+        <!-- VIP Page -->
+        <section id="vip-page" class="page">
+            <div class="hero">
+                <h1>Accès VIP Illimité</h1>
+                <p>Débloquez toutes nos prédictions premium, analyses détaillées et conseils d'experts.</p>
+            </div>
+
+            <div class="dashboard">
+                <div class="dashboard-card">
+                    <h3>Abonnement Mensuel</h3>
+                    <div class="gem-count">9.99€</div>
+                    <p>Accès complet à toutes les fonctionnalités VIP</p>
+                    <button class="btn btn-primary" style="margin-top: 1rem;">Souscrire</button>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Avec Gemmes</h3>
+                    <div class="gem-count">10 <span style="color: var(--warning);">💎</span></div>
+                    <p>Débloquez 30 jours d'accès VIP avec vos gemmes</p>
+                    <button class="btn btn-primary" style="margin-top: 1rem;">Échanger</button>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Essai Gratuit</h3>
+                    <div class="gem-count">24h</div>
+                    <p>Découvrez les avantages VIP gratuitement pendant 24 heures</p>
+                    <button class="btn btn-primary" style="margin-top: 1rem;">Activer</button>
+                </div>
+            </div>
+
+            <h2 class="section-title">Prédictions VIP Exclusives</h2>
+
+            <div class="predictions-grid" id="vip-predictions-container">
+                <!-- Prédictions VIP générées ici -->
+            </div>
+        </section>
+
+        <!-- Account Page -->
+        <section id="account-page" class="page">
+            <h2 class="section-title">Mon Compte</h2>
+            
+            <div class="dashboard">
+                <div class="dashboard-card">
+                    <h3>Mon Statut</h3>
+                    <div class="gem-count" id="user-status">Gratuit</div>
+                    <p id="trial-info">Essai gratuit actif pendant 24h</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Mes Gemmes</h3>
+                    <div class="gem-count" id="gem-count">0 <span style="color: var(--warning);">💎</span></div>
+                    <p>Gagnez des gemmes en regardant des publicités</p>
+                    <button class="btn btn-primary" style="margin-top: 1rem;" id="watch-ad-btn">Regarder une Pub</button>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Mes Prédictions</h3>
+                    <div class="gem-count" id="prediction-count">0</div>
+                    <p>Prédictions consultées ce mois</p>
+                </div>
+            </div>
+
+            <h2 class="section-title">Historique des Prédictions</h2>
+
+            <div class="predictions-grid" id="user-predictions-container">
+                <!-- Historique des prédictions de l'utilisateur -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>WinX - SmartPredict</h3>
+                <p>L'application de prédiction football la plus avancée, alimentée par l'IA.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Liens Rapides</h3>
+                <ul class="footer-links">
+                    <li><a href="#" data-page="home">Accueil</a></li>
+                    <li><a href="#" data-page="predictions">Prédictions</a></li>
+                    <li><a href="#" data-page="vip">VIP</a></li>
+                    <li><a href="#" data-page="account">Mon Compte</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Légal</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Conditions d'utilisation</a></li>
+                    <li><a href="#">Politique de confidentialité</a></li>
+                    <li><a href="#">Mentions légales</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <ul class="footer-links">
+                    <li><a href="mailto:support@winx-smartpredict.com">support@winx-smartpredict.com</a></li>
+                    <li><a href="#">Centre d'aide</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2025 WinX - SmartPredict. Tous droits réservés.
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Connexion</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Mot de passe</label>
+                    <input type="password" id="login-password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Se connecter</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem;">Pas de compte ? <a href="#" id="switch-to-register">S'inscrire</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal" id="register-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Inscription</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-name">Nom complet</label>
+                    <input type="text" id="register-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Mot de passe</label>
+                    <input type="password" id="register-password" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm">Confirmer le mot de passe</label>
+                    <input type="password" id="register-confirm" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">S'inscrire</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem;">Déjà un compte ? <a href="#" id="switch-to-login">Se connecter</a></p>
+        </div>
+    </div>
+
+    <!-- Admin Panel (hidden by default) -->
+    <div id="admin-panel" style="display: none;">
+        <!-- Panel d'administration pour ajouter/modifier des prédictions -->
+    </div>
+
+    <script>
+        // Données de l'application
+        const appData = {
+            currentUser: null,
+            users: JSON.parse(localStorage.getItem('winx_users')) || [],
+            predictions: JSON.parse(localStorage.getItem('winx_predictions')) || generateSamplePredictions(),
+            gems: parseInt(localStorage.getItem('winx_gems')) || 0,
+            trialActive: localStorage.getItem('winx_trial_active') === 'true',
+            trialEnd: localStorage.getItem('winx_trial_end') || null,
+            vipActive: localStorage.getItem('winx_vip_active') === 'true'
+        };
+
+        // Génération de prédictions d'exemple
+        function generateSamplePredictions() {
+            const leagues = ['Ligue 1', 'Premier League', 'La Liga', 'Serie A', 'Bundesliga'];
+            const teams = [
+                'PSG', 'OM', 'OL', 'Lille', 'Monaco', 'Real Madrid', 'Barcelona', 
+                'Atletico', 'Bayern', 'Dortmund', 'Juventus', 'Inter', 'Milan',
+                'Manchester City', 'Liverpool', 'Chelsea', 'Arsenal', 'United'
+            ];
+            
+            const predictions = [];
+            const types = ['combo', 'vip', 'unique'];
+            
+            for (let i = 0; i < 15; i++) {
+                const teamA = teams[Math.floor(Math.random() * teams.length)];
+                let teamB = teams[Math.floor(Math.random() * teams.length)];
+                while (teamB === teamA) {
+                    teamB = teams[Math.floor(Math.random() * teams.length)];
+                }
+                
+                const confidence = Math.floor(Math.random() * 40) + 60; // 60-100%
+                const odds = (1 + Math.random() * 2).toFixed(2);
+                
+                predictions.push({
+                    id: i + 1,
+                    teamA,
+                    teamB,
+                    league: leagues[Math.floor(Math.random() * leagues.length)],
+                    date: new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    time: `${Math.floor(Math.random() * 12) + 10}:00`,
+                    confidence,
+                    odds,
+                    type: types[Math.floor(Math.random() * types.length)],
+                    prediction: Math.random() > 0.5 ? '1' : (Math.random() > 0.5 ? '2' : 'X'),
+                    aiAnalysis: generateAIAnalysis(teamA, teamB, confidence)
+                });
+            }
+            
+            localStorage.setItem('winx_predictions', JSON.stringify(predictions));
+            return predictions;
+        }
+
+        // Génération d'analyse IA factice
+        function generateAIAnalysis(teamA, teamB, confidence) {
+            const analyses = [
+                `L'équipe ${teamA} montre une forme solide à domicile avec 3 victoires consécutives.`,
+                `${teamB} a du mal en déplacement cette saison, avec seulement 1 victoire en 5 matchs.`,
+                `Les statistiques offensives favorisent ${teamA} qui a marqué 8 buts dans les 5 derniers matchs.`,
+                `La défense de ${teamB} a encaissé 10 buts en 5 matchs, un point faible exploitable.`,
+                `Historiquement, ${teamA} a dominé les confrontations avec 4 victoires sur les 6 derniers matchs.`,
+                `Facteur motivation: ${teamA} joue pour une place en coupe d'Europe.`
+            ];
+            
+            return analyses[Math.floor(Math.random() * analyses.length)];
+        }
+
+        // Initialisation de l'application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation du splash screen
+            setTimeout(() => {
+                gsap.to('#splash-screen', {
+                    opacity: 0,
+                    duration: 0.8,
+                    onComplete: () => {
+                        document.getElementById('splash-screen').style.display = 'none';
+                        initApp();
+                    }
+                });
+            }, 3000);
+
+            // Initialisation des écouteurs d'événements
+            initEventListeners();
+            
+            // Vérification de l'état de l'essai
+            checkTrialStatus();
+        });
+
+        // Initialisation de l'application
+        function initApp() {
+            // Afficher les prédictions sur la page d'accueil
+            displayPredictions('predictions-container', appData.predictions.slice(0, 6));
+            
+            // Afficher toutes les prédictions
+            displayPredictions('all-predictions-container', appData.predictions);
+            
+            // Afficher les prédictions VIP
+            const vipPredictions = appData.predictions.filter(p => p.type === 'vip');
+            displayPredictions('vip-predictions-container', vipPredictions);
+            
+            // Mettre à jour l'interface utilisateur
+            updateUserInterface();
+            
+            // Animation des éléments au défilement
+            initScrollAnimations();
+        }
+
+        // Initialisation des écouteurs d'événements
+        function initEventListeners() {
+            // Navigation entre les pages
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    switchPage(page);
+                    
+                    // Mettre à jour la navigation active
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Navigation dans le footer
+            document.querySelectorAll('.footer-links a[data-page]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    switchPage(page);
+                    
+                    // Mettre à jour la navigation active
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    document.querySelector(`.nav-link[data-page="${page}"]`).classList.add('active');
+                });
+            });
+
+            // Boutons de connexion/inscription
+            document.getElementById('login-btn').addEventListener('click', () => {
+                document.getElementById('login-modal').style.display = 'flex';
+            });
+
+            document.getElementById('register-btn').addEventListener('click', () => {
+                document.getElementById('register-modal').style.display = 'flex';
+            });
+
+            // Fermeture des modales
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+
+            // Basculer entre connexion et inscription
+            document.getElementById('switch-to-register').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('login-modal').style.display = 'none';
+                document.getElementById('register-modal').style.display = 'flex';
+            });
+
+            document.getElementById('switch-to-login').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('register-modal').style.display = 'none';
+                document.getElementById('login-modal').style.display = 'flex';
+            });
+
+            // Formulaire de connexion
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                // Simulation de connexion
+                const user = appData.users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    appData.currentUser = user;
+                    alert('Connexion réussie !');
+                    document.getElementById('login-modal').style.display = 'none';
+                    updateUserInterface();
+                } else {
+                    alert('Email ou mot de passe incorrect.');
+                }
+            });
+
+            // Formulaire d'inscription
+            document.getElementById('register-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                const confirm = document.getElementById('register-confirm').value;
+                
+                if (password !== confirm) {
+                    alert('Les mots de passe ne correspondent pas.');
+                    return;
+                }
+                
+                // Vérifier si l'utilisateur existe déjà
+                if (appData.users.find(u => u.email === email)) {
+                    alert('Un compte avec cet email existe déjà.');
+                    return;
+                }
+                
+                // Créer un nouvel utilisateur
+                const newUser = {
+                    id: Date.now(),
+                    name,
+                    email,
+                    password,
+                    joined: new Date().toISOString(),
+                    gems: 0,
+                    trialActive: true,
+                    trialEnd: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                    vipActive: false
+                };
+                
+                appData.users.push(newUser);
+                appData.currentUser = newUser;
+                localStorage.setItem('winx_users', JSON.stringify(appData.users));
+                
+                alert('Inscription réussie ! Votre essai gratuit de 24h est activé.');
+                document.getElementById('register-modal').style.display = 'none';
+                updateUserInterface();
+            });
+
+            // Bouton d'essai gratuit
+            document.getElementById('trial-btn').addEventListener('click', function() {
+                if (!appData.currentUser) {
+                    document.getElementById('register-modal').style.display = 'flex';
+                    return;
+                }
+                
+                if (!appData.currentUser.trialActive) {
+                    appData.currentUser.trialActive = true;
+                    appData.currentUser.trialEnd = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+                    localStorage.setItem('winx_users', JSON.stringify(appData.users));
+                    updateUserInterface();
+                    alert('Essai gratuit de 24h activé !');
+                } else {
+                    alert('Votre essai gratuit est déjà actif.');
+                }
+            });
+
+            // Bouton pour regarder une pub
+            document.getElementById('watch-ad-btn').addEventListener('click', function() {
+                // Simuler le visionnage d'une publicité
+                const adModal = document.createElement('div');
+                adModal.className = 'modal';
+                adModal.style.display = 'flex';
+                adModal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Publicité</h3>
+                        </div>
+                        <div style="text-align: center; padding: 2rem;">
+                            <p>Publicité en cours de lecture...</p>
+                            <div class="loader" style="margin: 1rem auto;"></div>
+                            <p>Veuillez patienter 5 secondes</p>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(adModal);
+                
+                // Après 5 secondes, récompenser l'utilisateur
+                setTimeout(() => {
+                    document.body.removeChild(adModal);
+                    
+                    if (appData.currentUser) {
+                        appData.currentUser.gems = (appData.currentUser.gems || 0) + 1;
+                        localStorage.setItem('winx_users', JSON.stringify(appData.users));
+                        updateUserInterface();
+                        alert('Félicitations ! Vous avez gagné 1 gemme 💎');
+                    } else {
+                        appData.gems += 1;
+                        localStorage.setItem('winx_gems', appData.gems);
+                        updateUserInterface();
+                        alert('Félicitations ! Vous avez gagné 1 gemme 💎');
+                    }
+                }, 5000);
+            });
+
+            // Filtrage des prédictions par onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    const container = this.closest('.page').querySelector('.predictions-grid');
+                    
+                    // Mettre à jour l'onglet actif
+                    this.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filtrer les prédictions
+                    let filteredPredictions = appData.predictions;
+                    if (category !== 'all') {
+                        filteredPredictions = appData.predictions.filter(p => p.type === category);
+                    }
+                    
+                    // Afficher les prédictions filtrées
+                    if (container.id === 'predictions-container') {
+                        displayPredictions(container.id, filteredPredictions.slice(0, 6));
+                    } else {
+                        displayPredictions(container.id, filteredPredictions);
+                    }
+                });
+            });
+        }
+
+        // Changer de page
+        function switchPage(page) {
+            // Masquer toutes les pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            // Afficher la page demandée
+            document.getElementById(`${page}-page`).classList.add('active');
+            
+            // Animation d'entrée
+            gsap.from(`#${page}-page`, {
+                opacity: 0,
+                y: 20,
+                duration: 0.5
+            });
+        }
+
+        // Afficher les prédictions
+        function displayPredictions(containerId, predictions) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            predictions.forEach(prediction => {
+                const card = document.createElement('div');
+                card.className = `prediction-card fade-in ${prediction.type}`;
+                
+                const badgeClass = prediction.type === 'vip' ? 'badge-vip' : 
+                                  prediction.type === 'combo' ? 'badge-combo' : 'badge-unique';
+                const badgeText = prediction.type === 'vip' ? 'VIP' : 
+                                 prediction.type === 'combo' ? 'COMBO' : 'UNIQUE';
+                
+                card.innerHTML = `
+                    <div class="card-badge ${badgeClass}">${badgeText}</div>
+                    <div class="match-teams">
+                        <div class="team">
+                            <div class="team-logo">${prediction.teamA.substring(0, 2)}</div>
+                            <div class="team-name">${prediction.teamA}</div>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team">
+                            <div class="team-logo">${prediction.teamB.substring(0, 2)}</div>
+                            <div class="team-name">${prediction.teamB}</div>
+                        </div>
+                    </div>
+                    <div class="match-info">
+                        <span>${prediction.league}</span>
+                        <span>${prediction.date} • ${prediction.time}</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-level" style="width: ${prediction.confidence}%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Confiance: <strong>${prediction.confidence}%</strong></span>
+                        <span class="prediction-odds">${prediction.prediction} @ ${prediction.odds}</span>
+                    </div>
+                    <div class="ai-analysis">
+                        <strong>Analyse IA:</strong> ${prediction.aiAnalysis}
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            // Animation d'apparition des cartes
+            setTimeout(() => {
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    el.classList.add('visible');
+                });
+            }, 100);
+        }
+
+        // Mettre à jour l'interface utilisateur
+        function updateUserInterface() {
+            // Mettre à jour le compte de gemmes
+            const gemCount = appData.currentUser ? appData.currentUser.gems : appData.gems;
+            document.getElementById('gem-count').textContent = `${gemCount} 💎`;
+            
+            // Mettre à jour le statut de l'utilisateur
+            const userStatus = document.getElementById('user-status');
+            const trialInfo = document.getElementById('trial-info');
+            
+            if (appData.currentUser) {
+                if (appData.currentUser.vipActive) {
+                    userStatus.textContent = 'VIP';
+                    userStatus.style.color = 'var(--warning)';
+                    trialInfo.textContent = 'Abonnement VIP actif';
+                } else if (appData.currentUser.trialActive) {
+                    userStatus.textContent = 'Essai Actif';
+                    userStatus.style.color = 'var(--success)';
+                    
+                    // Calcul du temps restant
+                    const now = new Date();
+                    const end = new Date(appData.currentUser.trialEnd);
+                    const diff = end - now;
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    
+                    trialInfo.textContent = `Essai gratuit: ${hours}h ${minutes}m restantes`;
+                } else {
+                    userStatus.textContent = 'Gratuit';
+                    userStatus.style.color = 'var(--light)';
+                    trialInfo.textContent = 'Passez à VIP pour plus de fonctionnalités';
+                }
+            } else {
+                userStatus.textContent = 'Non connecté';
+                trialInfo.textContent = 'Connectez-vous pour activer votre essai gratuit';
+            }
+            
+            // Mettre à jour les boutons de connexion
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            
+            if (appData.currentUser) {
+                loginBtn.textContent = 'Mon Compte';
+                registerBtn.textContent = 'Déconnexion';
+                
+                // Changer le comportement du bouton de déconnexion
+                registerBtn.onclick = () => {
+                    appData.currentUser = null;
+                    updateUserInterface();
+                    alert('Déconnexion réussie.');
+                };
+            } else {
+                loginBtn.textContent = 'Connexion';
+                registerBtn.textContent = 'Inscription';
+                
+                // Rétablir le comportement original
+                loginBtn.onclick = () => {
+                    document.getElementById('login-modal').style.display = 'flex';
+                };
+                registerBtn.onclick = () => {
+                    document.getElementById('register-modal').style.display = 'flex';
+                };
+            }
+        }
+
+        // Vérifier le statut de l'essai
+        function checkTrialStatus() {
+            if (appData.currentUser && appData.currentUser.trialActive) {
+                const now = new Date();
+                const end = new Date(appData.currentUser.trialEnd);
+                
+                if (now > end) {
+                    appData.currentUser.trialActive = false;
+                    localStorage.setItem('winx_users', JSON.stringify(appData.users));
+                    updateUserInterface();
+                    alert('Votre essai gratuit a expiré. Passez à VIP pour continuer à accéder à toutes les prédictions.');
+                }
+            }
+        }
+
+        // Initialiser les animations au défilement
+        function initScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Simulation d'algorithme IA pour les prédictions
+        function calculateAIPrediction(teamA, teamB, stats) {
+            // Facteurs de pondération
+            const homeAdvantage = 1.2;
+            const formWeight = 0.3;
+            const oddsWeight = 0.2;
+            const historyWeight = 0.2;
+            const motivationWeight = 0.1;
+            
+            // Calcul du score de forme (exemple)
+            const formScore = (stats.teamAForm * 0.6 + stats.teamBForm * 0.4) * formWeight;
+            
+            // Calcul basé sur les cotes (inversement proportionnel)
+            const oddsScore = (1 / stats.odds) * oddsWeight;
+            
+            // Avantage à domicile
+            const homeScore = homeAdvantage * 0.1;
+            
+            // Score d'historique
+            const historyScore = stats.historyA * historyWeight;
+            
+            // Score de motivation
+            const motivationScore = stats.motivation * motivationWeight;
+            
+            // Score total
+            let totalScore = formScore + oddsScore + homeScore + historyScore + motivationScore;
+            
+            // Ajustement pour rester entre 0 et 1
+            totalScore = Math.min(Math.max(totalScore, 0), 1);
+            
+            // Conversion en pourcentage
+            const confidence = Math.round(totalScore * 100);
+            
+            // Détermination de la prédiction
+            let prediction;
+            if (confidence >= 60) {
+                prediction = '1'; // Victoire à domicile
+            } else if (confidence >= 40) {
+                prediction = 'X'; // Match nul
+            } else {
+                prediction = '2'; // Victoire à l'extérieur
+            }
+            
+            return {
+                prediction,
+                confidence,
+                analysis: generateAIAnalysis(teamA, teamB, confidence)
+            };
+        }
+    </script>
+</body>
+  </html>
