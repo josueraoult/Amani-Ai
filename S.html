@@ -55,7 +55,7 @@
             position: relative;
         }
 
-        /* Header amélioré */
+        /* Header */
         header {
             position: sticky;
             top: 0;
@@ -66,12 +66,12 @@
         }
 
         .dark-header {
-            background: rgba(30, 41, 59, 0.95);
+            background: rgba(30, 41, 59, 0.9);
             border-color: rgba(139, 92, 246, 0.3);
         }
 
         .light-header {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.9);
             border-color: rgba(139, 92, 246, 0.2);
         }
 
@@ -116,10 +116,9 @@
             opacity: 0.8;
         }
 
-        /* Navigation améliorée */
         .nav-desktop {
             display: none;
-            gap: 0.5rem;
+            gap: 1rem;
         }
 
         @media (min-width: 1024px) {
@@ -129,14 +128,11 @@
         }
 
         .nav-item {
-            padding: 0.75rem 1.25rem;
+            padding: 0.5rem 1rem;
             border-radius: 10px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
         .dark-nav-item {
@@ -161,18 +157,6 @@
             box-shadow: var(--shadow);
         }
 
-        .gems-counter {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-            background: linear-gradient(135deg, var(--accent), #FBBF24);
-            color: #1E293B;
-            box-shadow: var(--shadow);
-        }
-
         .header-actions {
             display: flex;
             align-items: center;
@@ -180,16 +164,15 @@
         }
 
         .theme-toggle, .user-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             border: none;
             font-size: 1.25rem;
-            transition: all 0.3s;
         }
 
         .dark-theme-toggle, .dark-user-btn {
@@ -204,32 +187,8 @@
             border: 1px solid rgba(139, 92, 246, 0.2);
         }
 
-        .user-btn {
-            overflow: hidden;
-        }
-
-        .user-avatar {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .user-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
         .login-btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1.5rem;
             border-radius: 10px;
             font-weight: 500;
             cursor: pointer;
@@ -273,40 +232,7 @@
             color: white;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .user-avatar-large {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 1.25rem;
-            border: 2px solid white;
-        }
-
-        .user-avatar-large img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .user-details h4 {
-            font-size: 1.1rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .user-details p {
+        .user-header p {
             font-size: 0.875rem;
             opacity: 0.9;
         }
@@ -315,6 +241,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            margin-top: 0.5rem;
             font-size: 0.875rem;
         }
 
@@ -357,7 +284,7 @@
             color: var(--danger);
         }
 
-        /* Mobile Menu amélioré */
+        /* Mobile Menu */
         .mobile-menu-btn {
             display: block;
         }
@@ -412,9 +339,6 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
         }
 
         .dark-mobile-nav-item {
@@ -435,44 +359,439 @@
             color: white;
         }
 
-        /* Sections de prédictions améliorées */
-        .predictions-section {
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Hero Section */
+        .hero {
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+            z-index: -1;
+        }
+
+        .dark-hero {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-hero {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @media (min-width: 768px) {
+            .hero h2 {
+                font-size: 3rem;
+            }
+        }
+
+        .hero p {
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            opacity: 0.8;
+        }
+
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 150px;
+            box-shadow: var(--shadow);
+        }
+
+        .dark-stat-card {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-stat-card {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
             margin-bottom: 2rem;
         }
 
-        .section-header {
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .dark-filter-btn {
+            background: var(--dark-card);
+            color: var(--dark-text);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .dark-filter-btn.active, .dark-filter-btn:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .light-filter-btn {
+            background: var(--light-card);
+            color: var(--light-text);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .light-filter-btn.active, .light-filter-btn:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Predictions Grid */
+        .predictions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .prediction-card {
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prediction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .dark-prediction-card {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-prediction-card {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .prediction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .prediction-type {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .type-vip {
+            background: var(--accent);
+            color: #1E293B;
+        }
+
+        .type-combo {
+            background: var(--success);
+            color: white;
+        }
+
+        .type-unique {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .prediction-league {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .teams {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .team-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .team-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .vs {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin: 0 1rem;
+        }
+
+        .prediction-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .confidence-bar {
+            margin-bottom: 1rem;
+        }
+
+        .confidence-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .confidence-value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .confidence-track {
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .dark-confidence-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .light-confidence-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #EF4444, #F59E0B, #10B981);
+        }
+
+        .prediction-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
         }
 
-        .section-title {
-            font-size: 1.5rem;
+        .prediction-result {
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .prediction-odds {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--success);
+        }
+
+        .prediction-analysis {
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .dark-prediction-analysis {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .light-prediction-analysis {
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .analysis-icon {
+            color: var(--primary);
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        /* VIP Section */
+        .vip-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .vip-card {
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .dark-vip-card {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-vip-card {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .vip-card.popular {
+            border: 2px solid var(--accent);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: #1E293B;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
             font-weight: 700;
         }
 
-        .unique-predictions {
-            overflow-x: auto;
-            padding-bottom: 1rem;
+        .vip-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
         }
 
-        .unique-predictions-container {
+        .vip-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .vip-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .vip-features {
+            list-style: none;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .vip-features li {
+            margin-bottom: 0.5rem;
             display: flex;
-            gap: 1rem;
-            min-width: min-content;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .combo-predictions {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem;
+        .vip-features li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: 700;
         }
 
-        /* Bouton Télécharger amélioré */
-        .download-btn {
+        .vip-btn {
             width: 100%;
-            padding: 1rem;
+            padding: 0.75rem;
             border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
@@ -482,34 +801,253 @@
             box-shadow: var(--shadow);
             transition: all 0.3s;
             font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
         }
 
-        .download-btn:hover {
+        .vip-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 15px 20px -5px rgba(139, 92, 246, 0.4);
         }
 
-        .download-btn:disabled {
-            background: var(--dark-text-secondary);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+        /* Account Section */
+        .account-section {
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        /* Modal Vidéo */
-        .video-modal {
+        .account-card {
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .dark-account-card {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-account-card {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .account-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .dark-form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--dark-text);
+        }
+
+        .dark-form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+        }
+
+        .light-form-input {
+            background: white;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            color: var(--light-text);
+        }
+
+        .light-form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 20px -5px rgba(139, 92, 246, 0.4);
+        }
+
+        .account-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .dark-stat-item {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-stat-item {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .stat-item-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-item-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-card {
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .dark-stats-card {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-stats-card {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .stats-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stats-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stats-card-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .league-stats {
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .dark-league-stats {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-league-stats {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .league-stats h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .league-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .league-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .league-name {
+            font-weight: 600;
+        }
+
+        .league-percentage {
+            opacity: 0.8;
+        }
+
+        .league-bar {
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .dark-league-bar {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .light-league-bar {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .league-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        /* Modal */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -517,40 +1055,494 @@
             padding: 1rem;
         }
 
-        .video-container {
-            background: var(--dark-card);
-            border-radius: 15px;
+        .modal {
+            border-radius: 20px;
             padding: 2rem;
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
-            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            position: relative;
         }
 
-        .video-placeholder {
-            width: 100%;
-            height: 300px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        .dark-modal {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-modal {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: inherit;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
             border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .dark-auth-tab {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--dark-text);
+        }
+
+        .dark-auth-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .light-auth-tab {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--light-text);
+        }
+
+        .light-auth-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 20px -5px rgba(139, 92, 246, 0.4);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .auth-switch-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Admin Panel */
+        .admin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 4rem;
-            margin-bottom: 1rem;
+            z-index: 1000;
+            padding: 1rem;
+            overflow-y: auto;
         }
 
-        .video-reward {
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
+        .admin-panel {
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 1200px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .dark-admin-panel {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-admin-panel {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .admin-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .admin-icon {
             color: var(--accent);
         }
 
-        /* Autres styles restent similaires mais améliorés */
-        /* ... (le reste du CSS précédent avec améliorations) ... */
+        .admin-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
 
-        /* Scrollbar personnalisée */
+        @media (max-width: 768px) {
+            .admin-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .admin-form-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-full {
+            grid-column: 1 / -1;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .primary-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 20px -5px rgba(139, 92, 246, 0.4);
+        }
+
+        .secondary-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            border: 1px solid;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .dark-secondary-btn {
+            border-color: rgba(139, 92, 246, 0.3);
+            color: var(--dark-text);
+        }
+
+        .dark-secondary-btn:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .light-secondary-btn {
+            border-color: rgba(139, 92, 246, 0.2);
+            color: var(--light-text);
+        }
+
+        .light-secondary-btn:hover {
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .danger-btn {
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--danger);
+            color: white;
+            border: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .danger-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.4);
+        }
+
+        .predictions-list {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .prediction-item {
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .dark-prediction-item {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-prediction-item {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .prediction-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-item-teams {
+            font-weight: 700;
+        }
+
+        .prediction-item-meta {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .prediction-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            transition: all 0.3s;
+        }
+
+        .edit-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            flex: 1;
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+            width: 40px;
+        }
+
+        /* AI Analysis Section */
+        .ai-analysis {
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .dark-ai-analysis {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-ai-analysis {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .ai-analysis h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ai-analysis-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .ai-factor {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .ai-factor-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .ai-factor-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .ai-factor-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 1rem;
+            }
+
+            main {
+                padding: 1.5rem 1rem;
+            }
+
+            .hero {
+                padding: 2rem 1rem;
+            }
+
+            .hero h2 {
+                font-size: 2rem;
+            }
+
+            .stats {
+                gap: 1rem;
+            }
+
+            .stat-card {
+                min-width: 120px;
+                padding: 1rem;
+            }
+
+            .predictions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .vip-plans {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-content {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Scrollbar */
         ::-webkit-scrollbar {
-            height: 8px;
             width: 8px;
         }
 
@@ -579,7 +1571,7 @@
 </head>
 <body class="dark-mode">
     <div class="app-container">
-        <!-- Header amélioré -->
+        <!-- Header -->
         <header class="dark-header">
             <div class="header-content">
                 <div class="logo">
@@ -596,26 +1588,10 @@
                 </div>
 
                 <nav class="nav-desktop">
-                    <div class="nav-item dark-nav-item active" data-page="home">
-                        <i class="fas fa-home"></i>
-                        Accueil
-                    </div>
-                    <div class="nav-item dark-nav-item" data-page="predictions">
-                        <i class="fas fa-chart-line"></i>
-                        Prédictions
-                    </div>
-                    <div class="nav-item dark-nav-item" data-page="vip">
-                        <i class="fas fa-crown"></i>
-                        VIP
-                    </div>
-                    <div class="nav-item dark-nav-item" data-page="stats">
-                        <i class="fas fa-chart-bar"></i>
-                        Statistiques
-                    </div>
-                    <div class="gems-counter">
-                        <i class="fas fa-gem"></i>
-                        <span id="gems-count">1</span>
-                    </div>
+                    <div class="nav-item dark-nav-item active" data-page="home">Accueil</div>
+                    <div class="nav-item dark-nav-item" data-page="predictions">Prédictions</div>
+                    <div class="nav-item dark-nav-item" data-page="vip">VIP</div>
+                    <div class="nav-item dark-nav-item" data-page="stats">Statistiques</div>
                 </nav>
 
                 <div class="header-actions">
@@ -625,35 +1601,22 @@
                     
                     <div class="user-section">
                         <button class="user-btn dark-user-btn">
-                            <div class="user-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
+                            <i class="fas fa-user"></i>
                         </button>
                         
                         <div class="user-menu dark-user-menu" style="display: none;">
                             <div class="user-header">
-                                <div class="user-info">
-                                    <div class="user-avatar-large">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div class="user-details">
-                                        <h4 id="user-name">Invité</h4>
-                                        <p id="user-email">Non connecté</p>
-                                    </div>
-                                </div>
+                                <p class="user-name">Nom Utilisateur</p>
+                                <p class="user-email">email@exemple.com</p>
                                 <div class="user-stats">
                                     <i class="fas fa-gem"></i>
-                                    <span id="user-gems">1 Gemme</span>
+                                    <span>5 Gemmes</span>
                                 </div>
                             </div>
                             <div class="user-actions">
                                 <button class="user-action dark-user-action" data-page="account">
-                                    <i class="fas fa-user-cog"></i>
+                                    <i class="fas fa-cog"></i>
                                     <span>Mon compte</span>
-                                </button>
-                                <button class="user-action dark-user-action" data-page="subscription">
-                                    <i class="fas fa-crown"></i>
-                                    <span>Abonnement</span>
                                 </button>
                                 <button class="user-action dark-user-action admin-btn">
                                     <i class="fas fa-shield-alt"></i>
@@ -672,7 +1635,7 @@
             </div>
         </header>
 
-        <!-- Mobile Menu amélioré -->
+        <!-- Mobile Menu -->
         <div class="mobile-menu" style="display: none;">
             <div class="mobile-menu-header dark-mobile-menu-header">
                 <div class="logo">
@@ -688,49 +1651,20 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="mobile-nav">
-                <div class="mobile-nav-item dark-mobile-nav-item active" data-page="home">
-                    <i class="fas fa-home"></i>
-                    Accueil
-                </div>
-                <div class="mobile-nav-item dark-mobile-nav-item" data-page="predictions">
-                    <i class="fas fa-chart-line"></i>
-                    Prédictions
-                </div>
-                <div class="mobile-nav-item dark-mobile-nav-item" data-page="vip">
-                    <i class="fas fa-crown"></i>
-                    VIP
-                </div>
-                <div class="mobile-nav-item dark-mobile-nav-item" data-page="stats">
-                    <i class="fas fa-chart-bar"></i>
-                    Statistiques
-                </div>
-                <div class="mobile-nav-item dark-mobile-nav-item" data-page="account">
-                    <i class="fas fa-user-cog"></i>
-                    Mon compte
-                </div>
-                <div class="mobile-nav-item dark-mobile-nav-item" data-page="subscription">
-                    <i class="fas fa-crown"></i>
-                    Abonnement
-                </div>
-                <div class="mobile-nav-item dark-mobile-nav-item admin-btn">
-                    <i class="fas fa-shield-alt"></i>
-                    Admin Panel
-                </div>
-                <div class="gems-counter" style="margin: 1rem 0;">
-                    <i class="fas fa-gem"></i>
-                    <span id="mobile-gems-count">1 Gemme</span>
-                </div>
-                <div class="mobile-nav-item dark-mobile-nav-item logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Déconnexion
-                </div>
-            </div>
+            <nav class="mobile-nav">
+                <div class="mobile-nav-item dark-mobile-nav-item active" data-page="home">Accueil</div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="predictions">Prédictions</div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="vip">VIP</div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="stats">Statistiques</div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="account">Mon compte</div>
+                <div class="mobile-nav-item dark-mobile-nav-item admin-btn">Admin Panel</div>
+                <div class="mobile-nav-item dark-mobile-nav-item logout-btn">Déconnexion</div>
+            </nav>
         </div>
 
         <!-- Main Content -->
         <main>
-            <!-- Home Page avec nouvelles sections -->
+            <!-- Home Page -->
             <section id="home-page" class="page active">
                 <div class="hero dark-hero fade-in">
                     <h2>Prédictions Football IA</h2>
@@ -761,36 +1695,308 @@
                     </div>
                 </div>
 
-                <!-- Section Prédictions Uniques (défilement horizontal) -->
-                <div class="predictions-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Pronostics Uniques du Jour</h3>
-                        <span class="section-badge">Nouveau</span>
-                    </div>
-                    <div class="unique-predictions">
-                        <div class="unique-predictions-container" id="unique-predictions">
-                            <!-- Les prédictions uniques seront chargées ici -->
-                        </div>
-                    </div>
+                <div class="filters">
+                    <button class="filter-btn dark-filter-btn active" data-filter="all">
+                        <i class="fas fa-chart-bar"></i>
+                        Toutes
+                    </button>
+                    <button class="filter-btn dark-filter-btn" data-filter="combo">
+                        <i class="fas fa-star"></i>
+                        Combo
+                    </button>
+                    <button class="filter-btn dark-filter-btn" data-filter="vip">
+                        <i class="fas fa-crown"></i>
+                        VIP
+                    </button>
+                    <button class="filter-btn dark-filter-btn" data-filter="unique">
+                        <i class="fas fa-bolt"></i>
+                        Unique
+                    </button>
                 </div>
 
-                <!-- Section Prédictions Combo (liste verticale) -->
-                <div class="predictions-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Combos Gagnants</h3>
-                        <span class="section-badge">Populaire</span>
-                    </div>
-                    <div class="combo-predictions" id="combo-predictions">
-                        <!-- Les prédictions combo seront chargées ici -->
+                <div class="predictions-grid" id="home-predictions">
+                    <!-- Predictions will be loaded here by JavaScript -->
+                </div>
+
+                <div class="ai-analysis dark-ai-analysis">
+                    <h3><i class="fas fa-robot"></i> Analyse IA Avancée</h3>
+                    <div class="ai-analysis-content">
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="ai-factor-value">94.5%</div>
+                            <div class="ai-factor-label">Précision Globale</div>
+                        </div>
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="ai-factor-value">200+</div>
+                            <div class="ai-factor-label">Facteurs Analysés</div>
+                        </div>
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="ai-factor-value">10M+</div>
+                            <div class="ai-factor-label">Points de Données</div>
+                        </div>
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="ai-factor-value">AI</div>
+                            <div class="ai-factor-label">Deep Learning</div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Autres pages (predictions, vip, stats, account) -->
-            <!-- ... (le reste du HTML précédent) ... -->
+            <!-- Predictions Page -->
+            <section id="predictions-page" class="page">
+                <h2 class="section-title">Toutes les Prédictions</h2>
+                
+                <div class="filters">
+                    <button class="filter-btn dark-filter-btn active" data-filter="all">
+                        <i class="fas fa-chart-bar"></i>
+                        Toutes
+                    </button>
+                    <button class="filter-btn dark-filter-btn" data-filter="combo">
+                        <i class="fas fa-star"></i>
+                        Combo
+                    </button>
+                    <button class="filter-btn dark-filter-btn" data-filter="vip">
+                        <i class="fas fa-crown"></i>
+                        VIP
+                    </button>
+                    <button class="filter-btn dark-filter-btn" data-filter="unique">
+                        <i class="fas fa-bolt"></i>
+                        Unique
+                    </button>
+                </div>
+
+                <div class="predictions-grid" id="predictions-list">
+                    <!-- Predictions will be loaded here by JavaScript -->
+                </div>
+            </section>
+
+            <!-- VIP Page -->
+            <section id="vip-page" class="page">
+                <div class="hero dark-hero text-center">
+                    <div class="vip-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h2>Accès VIP Premium</h2>
+                    <p>Débloquez toutes les prédictions, analyses avancées et support prioritaire</p>
+                </div>
+
+                <div class="vip-plans">
+                    <div class="vip-card dark-vip-card">
+                        <h3 class="vip-title">Mensuel</h3>
+                        <div class="vip-price">9.99€</div>
+                        <ul class="vip-features">
+                            <li>Toutes les prédictions VIP</li>
+                            <li>Analyses détaillées</li>
+                            <li>Support prioritaire</li>
+                            <li>Statistiques avancées</li>
+                        </ul>
+                        <button class="vip-btn">Souscrire</button>
+                    </div>
+
+                    <div class="vip-card dark-vip-card popular">
+                        <div class="popular-badge">POPULAIRE</div>
+                        <h3 class="vip-title">Annuel</h3>
+                        <div class="vip-price">99€</div>
+                        <ul class="vip-features">
+                            <li>Toutes les prédictions VIP</li>
+                            <li>Analyses détaillées</li>
+                            <li>Support prioritaire</li>
+                            <li>Statistiques avancées</li>
+                            <li>2 mois offerts</li>
+                        </ul>
+                        <button class="vip-btn">Économiser 17%</button>
+                    </div>
+
+                    <div class="vip-card dark-vip-card">
+                        <h3 class="vip-title">Gemmes</h3>
+                        <div class="vip-price">10 <i class="fas fa-gem" style="color: #F59E0B;"></i></div>
+                        <ul class="vip-features">
+                            <li>Accès VIP 1 mois</li>
+                            <li>Analyses détaillées</li>
+                            <li>Support prioritaire</li>
+                        </ul>
+                        <button class="vip-btn">Échanger</button>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Prédictions VIP</h2>
+                <div class="predictions-grid" id="vip-predictions">
+                    <!-- VIP Predictions will be loaded here by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Account Page -->
+            <section id="account-page" class="page">
+                <h2 class="section-title">Mon Compte</h2>
+                
+                <div class="account-section">
+                    <div class="account-card dark-account-card">
+                        <h3>Informations du compte</h3>
+                        <div class="form-group">
+                            <label class="form-label">Nom</label>
+                            <input type="text" class="form-input dark-form-input" value="Nom Utilisateur">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input dark-form-input" value="email@exemple.com">
+                        </div>
+                        <button class="save-btn">Sauvegarder les modifications</button>
+                    </div>
+
+                    <div class="account-card dark-account-card">
+                        <h3>Statistiques</h3>
+                        <div class="account-stats">
+                            <div class="stat-item dark-stat-item">
+                                <div class="stat-item-icon" style="color: #F59E0B;">
+                                    <i class="fas fa-gem"></i>
+                                </div>
+                                <div class="stat-item-value">5</div>
+                                <div class="stat-item-label">Gemmes</div>
+                            </div>
+                            <div class="stat-item dark-stat-item">
+                                <div class="stat-item-icon" style="color: #3B82F6;">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                <div class="stat-item-value">24</div>
+                                <div class="stat-item-label">Prédictions vues</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Page -->
+            <section id="stats-page" class="page">
+                <h2 class="section-title">Statistiques & Performance</h2>
+                
+                <div class="stats-grid">
+                    <div class="stats-card dark-stats-card">
+                        <div class="stats-card-icon" style="color: #10B981;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stats-card-value">94.5%</div>
+                        <div class="stats-card-label">Taux de réussite</div>
+                    </div>
+                    <div class="stats-card dark-stats-card">
+                        <div class="stats-card-icon" style="color: #3B82F6;">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="stats-card-value">1,247</div>
+                        <div class="stats-card-label">Prédictions totales</div>
+                    </div>
+                    <div class="stats-card dark-stats-card">
+                        <div class="stats-card-icon" style="color: #8B5CF6;">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="stats-card-value">+22%</div>
+                        <div class="stats-card-label">ROI Moyen</div>
+                    </div>
+                    <div class="stats-card dark-stats-card">
+                        <div class="stats-card-icon" style="color: #F59E0B;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stats-card-value">15,234</div>
+                        <div class="stats-card-label">Utilisateurs actifs</div>
+                    </div>
+                </div>
+
+                <div class="league-stats dark-league-stats">
+                    <h3>Performance par ligue</h3>
+                    <div class="league-item">
+                        <div class="league-header">
+                            <span class="league-name">Premier League</span>
+                            <span class="league-percentage">96% (234 matchs)</span>
+                        </div>
+                        <div class="league-bar dark-league-bar">
+                            <div class="league-fill" style="width: 96%"></div>
+                        </div>
+                    </div>
+                    <div class="league-item">
+                        <div class="league-header">
+                            <span class="league-name">La Liga</span>
+                            <span class="league-percentage">94% (198 matchs)</span>
+                        </div>
+                        <div class="league-bar dark-league-bar">
+                            <div class="league-fill" style="width: 94%"></div>
+                        </div>
+                    </div>
+                    <div class="league-item">
+                        <div class="league-header">
+                            <span class="league-name">Bundesliga</span>
+                            <span class="league-percentage">93% (187 matchs)</span>
+                        </div>
+                        <div class="league-bar dark-league-bar">
+                            <div class="league-fill" style="width: 93%"></div>
+                        </div>
+                    </div>
+                    <div class="league-item">
+                        <div class="league-header">
+                            <span class="league-name">Serie A</span>
+                            <span class="league-percentage">95% (176 matchs)</span>
+                        </div>
+                        <div class="league-bar dark-league-bar">
+                            <div class="league-fill" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    <div class="league-item">
+                        <div class="league-header">
+                            <span class="league-name">Ligue 1</span>
+                            <span class="league-percentage">92% (165 matchs)</span>
+                        </div>
+                        <div class="league-bar dark-league-bar">
+                            <div class="league-fill" style="width: 92%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-analysis dark-ai-analysis">
+                    <h3><i class="fas fa-robot"></i> Algorithmes IA Utilisés</h3>
+                    <div class="ai-analysis-content">
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="ai-factor-value">RNN</div>
+                            <div class="ai-factor-label">Réseaux Récurrents</div>
+                        </div>
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <div class="ai-factor-value">CNN</div>
+                            <div class="ai-factor-label">Réseaux Convolutifs</div>
+                        </div>
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="ai-factor-value">XGBoost</div>
+                            <div class="ai-factor-label">Arbres de Décision</div>
+                        </div>
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="ai-factor-value">LSTM</div>
+                            <div class="ai-factor-label">Mémoire Long Terme</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
-        <!-- Auth Modal amélioré -->
+        <!-- Auth Modal -->
         <div class="modal-overlay" id="auth-modal" style="display: none;">
             <div class="modal dark-modal">
                 <div class="modal-header">
@@ -819,11 +2025,7 @@
 
                 <form class="auth-form" id="register-form">
                     <div class="form-group">
-                        <label class="form-label">Photo de profil (URL)</label>
-                        <input type="url" class="form-input dark-form-input" id="avatar-url" placeholder="https://example.com/avatar.jpg">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nom complet</label>
+                        <label class="form-label">Nom</label>
                         <input type="text" class="form-input dark-form-input" required>
                     </div>
                     <div class="form-group">
@@ -844,101 +2046,210 @@
             </div>
         </div>
 
-        <!-- Modal Vidéo pour gagner des gemmes -->
-        <div class="video-modal" id="video-modal" style="display: none;">
-            <div class="video-container">
-                <div class="video-placeholder">
-                    <i class="fas fa-play-circle"></i>
+        <!-- Admin Panel -->
+        <div class="admin-overlay" id="admin-panel" style="display: none;">
+            <div class="admin-panel dark-admin-panel">
+                <div class="admin-header">
+                    <div class="admin-title">
+                        <i class="fas fa-shield-alt admin-icon"></i>
+                        <span>Panel Administrateur</span>
+                    </div>
+                    <button class="close-btn" id="close-admin-panel">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <h3>Regardez la vidéo pour gagner des gemmes</h3>
-                <p class="video-reward">+0.1 💎 par vidéo</p>
-                <div class="video-controls">
-                    <button class="primary-btn" id="play-video">
-                        <i class="fas fa-play"></i>
-                        Lire la vidéo
-                    </button>
-                    <button class="secondary-btn dark-secondary-btn" id="close-video">
-                        Fermer
-                    </button>
+
+                <div class="admin-content">
+                    <div>
+                        <h3 class="admin-form-title" id="admin-form-title">Nouvelle prédiction</h3>
+                        
+                        <form id="admin-prediction-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Équipe A</label>
+                                    <input type="text" class="form-input dark-form-input" id="team-a" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Équipe B</label>
+                                    <input type="text" class="form-input dark-form-input" id="team-b" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Ligue</label>
+                                <select class="form-input dark-form-input" id="league">
+                                    <option>Ligue 1</option>
+                                    <option>Premier League</option>
+                                    <option>La Liga</option>
+                                    <option>Serie A</option>
+                                    <option>Bundesliga</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" class="form-input dark-form-input" id="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Heure</label>
+                                    <input type="time" class="form-input dark-form-input" id="time" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Type</label>
+                                    <select class="form-input dark-form-input" id="type">
+                                        <option value="combo">Combo</option>
+                                        <option value="vip">VIP</option>
+                                        <option value="unique">Unique</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Prédiction</label>
+                                    <select class="form-input dark-form-input" id="prediction">
+                                        <option value="1">1</option>
+                                        <option value="X">X</option>
+                                        <option value="2">2</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Cote</label>
+                                    <input type="number" step="0.01" class="form-input dark-form-input" id="odds" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Confiance IA: <span id="confidence-value">75</span>%</label>
+                                <input type="range" min="50" max="100" value="75" class="form-full" id="confidence">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Analyse</label>
+                                <textarea class="form-input dark-form-input" id="analysis" rows="3" required></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="primary-btn">
+                                    <i class="fas fa-save"></i>
+                                    <span id="admin-submit-text">Ajouter</span>
+                                </button>
+                                <button type="button" class="secondary-btn dark-secondary-btn" id="cancel-edit" style="display: none;">
+                                    Annuler
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div>
+                        <h3 class="admin-form-title">Prédictions existantes (<span id="predictions-count">0</span>)</h3>
+                        
+                        <div class="predictions-list" id="admin-predictions-list">
+                            <!-- Admin predictions list will be loaded here by JavaScript -->
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Admin Panel (séparé dans un autre fichier en production) -->
-        <div class="admin-overlay" id="admin-panel" style="display: none;">
-            <!-- ... (contenu du panel admin) ... -->
         </div>
     </div>
 
     <script>
-        // Application State amélioré
+        // Application State
         const state = {
             darkMode: true,
             currentPage: 'home',
             currentUser: null,
-            predictions: {
-                unique: [],
-                combo: []
-            },
+            predictions: [],
             filter: 'all',
-            editingPrediction: null,
-            userGems: 1,
-            downloadedPredictions: new Set()
+            editingPrediction: null
         };
 
         // DOM Elements
         const elements = {
-            // Navigation améliorée
-            gemsCounter: document.getElementById('gems-count'),
-            mobileGemsCounter: document.getElementById('mobile-gems-count'),
-            userGems: document.getElementById('user-gems'),
-            userName: document.getElementById('user-name'),
-            userEmail: document.getElementById('user-email'),
-            userAvatar: document.querySelector('.user-avatar'),
-            userAvatarLarge: document.querySelector('.user-avatar-large'),
+            // Theme
+            body: document.body,
+            themeToggle: document.querySelector('.theme-toggle'),
             
-            // Nouvelles sections
-            uniquePredictions: document.getElementById('unique-predictions'),
-            comboPredictions: document.getElementById('combo-predictions'),
+            // Navigation
+            navItems: document.querySelectorAll('.nav-item'),
+            mobileMenuBtn: document.querySelector('.mobile-menu-btn'),
+            mobileMenu: document.querySelector('.mobile-menu'),
+            closeMobileMenu: document.querySelector('.close-mobile-menu'),
+            mobileNavItems: document.querySelectorAll('.mobile-nav-item'),
+            pages: document.querySelectorAll('.page'),
             
-            // Modal vidéo
-            videoModal: document.getElementById('video-modal'),
-            playVideo: document.getElementById('play-video'),
-            closeVideo: document.getElementById('close-video')
+            // User
+            userBtn: document.querySelector('.user-btn'),
+            userMenu: document.querySelector('.user-menu'),
+            loginBtn: document.querySelector('.login-btn'),
+            logoutBtn: document.querySelector('.logout-btn'),
+            adminBtn: document.querySelector('.admin-btn'),
+            
+            // Filters
+            filterBtns: document.querySelectorAll('.filter-btn'),
+            
+            // Modals
+            authModal: document.getElementById('auth-modal'),
+            closeAuthModal: document.getElementById('close-auth-modal'),
+            authTabs: document.querySelectorAll('.auth-tab'),
+            authForms: document.querySelectorAll('.auth-form'),
+            authSwitchBtn: document.getElementById('auth-switch-btn'),
+            authSwitchText: document.getElementById('auth-switch-text'),
+            authModalTitle: document.getElementById('auth-modal-title'),
+            
+            // Admin Panel
+            adminPanel: document.getElementById('admin-panel'),
+            closeAdminPanel: document.getElementById('close-admin-panel'),
+            adminPredictionForm: document.getElementById('admin-prediction-form'),
+            adminSubmitText: document.getElementById('admin-submit-text'),
+            adminFormTitle: document.getElementById('admin-form-title'),
+            cancelEdit: document.getElementById('cancel-edit'),
+            confidenceSlider: document.getElementById('confidence'),
+            confidenceValue: document.getElementById('confidence-value'),
+            predictionsCount: document.getElementById('predictions-count'),
+            adminPredictionsList: document.getElementById('admin-predictions-list'),
+            
+            // Prediction containers
+            homePredictions: document.getElementById('home-predictions'),
+            predictionsList: document.getElementById('predictions-list'),
+            vipPredictions: document.getElementById('vip-predictions')
         };
 
-        // Initialisation améliorée
+        // Initialize the application
         function init() {
             loadUser();
             loadPredictions();
             setupEventListeners();
             renderPredictions();
-            updateGemsUI();
         }
 
-        // Charger les prédictions
-        function loadPredictions() {
-            const savedPredictions = localStorage.getItem('winx_predictions');
-            if (savedPredictions) {
-                const allPredictions = JSON.parse(savedPredictions);
-                state.predictions.unique = allPredictions.filter(p => p.type === 'unique');
-                state.predictions.combo = allPredictions.filter(p => p.type === 'combo');
-            } else {
-                // Générer des prédictions initiales
-                state.predictions.unique = generateUniquePredictions();
-                state.predictions.combo = generateComboPredictions();
-                const allPredictions = [...state.predictions.unique, ...state.predictions.combo];
-                localStorage.setItem('winx_predictions', JSON.stringify(allPredictions));
+        // Load user from localStorage
+        function loadUser() {
+            const savedUser = localStorage.getItem('winx_user');
+            if (savedUser) {
+                state.currentUser = JSON.parse(savedUser);
+                updateUserUI();
             }
         }
 
-        // Générer des prédictions uniques
-        function generateUniquePredictions() {
+        // Load predictions from localStorage or generate initial ones
+        function loadPredictions() {
+            const savedPredictions = localStorage.getItem('winx_predictions');
+            if (savedPredictions) {
+                state.predictions = JSON.parse(savedPredictions);
+            } else {
+                state.predictions = generateInitialPredictions();
+                localStorage.setItem('winx_predictions', JSON.stringify(state.predictions));
+            }
+        }
+
+        // Generate initial predictions
+        function generateInitialPredictions() {
             const leagues = ['Ligue 1', 'Premier League', 'La Liga', 'Serie A', 'Bundesliga'];
             const teams = ['PSG', 'OM', 'OL', 'Monaco', 'Real Madrid', 'Barcelona', 'Bayern', 'Dortmund', 'Juventus', 'Inter', 'Man City', 'Liverpool', 'Chelsea', 'Arsenal'];
-            const betTypes = ['Victoire', 'Total Buts', 'BTTS', 'Double Chance', 'Handicap'];
             
-            return Array.from({ length: 8 }, (_, i) => {
+            return Array.from({ length: 12 }, (_, i) => {
                 const teamA = teams[Math.floor(Math.random() * teams.length)];
                 let teamB = teams[Math.floor(Math.random() * teams.length)];
                 while (teamB === teamA) teamB = teams[Math.floor(Math.random() * teams.length)];
@@ -952,196 +2263,678 @@
                     time: `${Math.floor(Math.random() * 12) + 10}:${['00', '30'][Math.floor(Math.random() * 2)]}`,
                     confidence: Math.floor(Math.random() * 40) + 60,
                     odds: (1.5 + Math.random() * 2).toFixed(2),
-                    type: 'unique',
-                    betType: betTypes[Math.floor(Math.random() * betTypes.length)],
+                    type: ['combo', 'vip', 'unique'][Math.floor(Math.random() * 3)],
                     prediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)],
-                    analysis: 'Analyse IA basée sur les performances récentes, statistiques avancées et conditions de match.',
-                    requiresGem: true
+                    analysis: 'Analyse basée sur les dernières performances et statistiques des équipes, forme des joueurs, et conditions de match.'
                 };
             });
         }
 
-        // Générer des prédictions combo
-        function generateComboPredictions() {
-            return Array.from({ length: 4 }, (_, i) => {
-                return {
-                    id: Date.now() + i + 1000,
-                    matches: [
-                        { teams: 'PSG vs Monaco', prediction: '1', odds: '1.45' },
-                        { teams: 'Real Madrid vs Barcelone', prediction: '1X', odds: '1.30' },
-                        { teams: 'Bayern vs Dortmund', prediction: '2+', odds: '1.80' }
-                    ],
-                    confidence: Math.floor(Math.random() * 30) + 65,
-                    totalOdds: (3 + Math.random() * 2).toFixed(2),
-                    type: 'combo',
-                    analysis: 'Combo sécurisé avec forte probabilité de succès basée sur l\'analyse IA.',
-                    requiresGem: true
-                };
-            });
-        }
-
-        // Mise à jour de l'UI des gemmes
-        function updateGemsUI() {
-            elements.gemsCounter.textContent = state.userGems;
-            elements.mobileGemsCounter.textContent = `${state.userGems} Gemme${state.userGems > 1 ? 's' : ''}`;
-            elements.userGems.textContent = `${state.userGems} Gemme${state.userGems > 1 ? 's' : ''}`;
-        }
-
-        // Gestion du téléchargement des prédictions
-        function handleDownloadPrediction(predictionId, predictionType) {
-            if (!state.currentUser) {
-                openAuthModal('login');
-                return;
-            }
-
-            if (state.downloadedPredictions.has(predictionId)) {
-                alert('Vous avez déjà téléchargé cette prédiction !');
-                return;
-            }
-
-            if (state.userGems < 1) {
-                // Ouvrir le modal vidéo pour gagner des gemmes
-                elements.videoModal.style.display = 'flex';
-                return;
-            }
-
-            // Débiter une gemme
-            state.userGems -= 1;
-            state.downloadedPredictions.add(predictionId);
-            
-            // Sauvegarder l'état
+        // Update user UI based on login state
+        function updateUserUI() {
             if (state.currentUser) {
-                state.currentUser.gems = state.userGems;
-                localStorage.setItem('winx_user', JSON.stringify(state.currentUser));
-            }
-            localStorage.setItem('winx_downloaded', JSON.stringify(Array.from(state.downloadedPredictions)));
-            
-            // Mettre à jour l'UI
-            updateGemsUI();
-            
-            // Afficher la prédiction
-            showPredictionDetails(predictionId, predictionType);
-            
-            alert('Prédiction téléchargée avec succès ! -1 💎');
-        }
-
-        // Afficher les détails de la prédiction
-        function showPredictionDetails(predictionId, predictionType) {
-            let prediction;
-            if (predictionType === 'unique') {
-                prediction = state.predictions.unique.find(p => p.id === predictionId);
+                elements.loginBtn.style.display = 'none';
+                document.querySelector('.user-name').textContent = state.currentUser.name;
+                document.querySelector('.user-email').textContent = state.currentUser.email;
+                document.querySelector('.user-stats span').textContent = `${state.currentUser.gems} Gemmes`;
+                
+                // Show admin button if user is admin
+                if (state.currentUser.isAdmin) {
+                    document.querySelector('.admin-btn').style.display = 'flex';
+                } else {
+                    document.querySelector('.admin-btn').style.display = 'none';
+                }
             } else {
-                prediction = state.predictions.combo.find(p => p.id === predictionId);
+                elements.loginBtn.style.display = 'block';
+                document.querySelector('.user-name').textContent = 'Nom Utilisateur';
+                document.querySelector('.user-email').textContent = 'email@exemple.com';
+                document.querySelector('.user-stats span').textContent = '5 Gemmes';
+                document.querySelector('.admin-btn').style.display = 'none';
+            }
+        }
+
+        // Setup all event listeners
+        function setupEventListeners() {
+            // Theme toggle
+            elements.themeToggle.addEventListener('click', toggleTheme);
+            
+            // Navigation
+            elements.navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    changePage(item.getAttribute('data-page'));
+                });
+            });
+            
+            // Mobile menu
+            elements.mobileMenuBtn.addEventListener('click', () => {
+                elements.mobileMenu.style.display = 'flex';
+            });
+            
+            elements.closeMobileMenu.addEventListener('click', () => {
+                elements.mobileMenu.style.display = 'none';
+            });
+            
+            elements.mobileNavItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (item.classList.contains('admin-btn')) {
+                        openAdminPanel();
+                    } else if (item.classList.contains('logout-btn')) {
+                        handleLogout();
+                    } else {
+                        changePage(item.getAttribute('data-page'));
+                    }
+                    elements.mobileMenu.style.display = 'none';
+                });
+            });
+            
+            // User menu
+            elements.userBtn.addEventListener('click', () => {
+                elements.userMenu.style.display = elements.userMenu.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            // User actions
+            document.querySelectorAll('.user-action').forEach(action => {
+                action.addEventListener('click', () => {
+                    if (action.classList.contains('logout-btn')) {
+                        handleLogout();
+                    } else if (action.classList.contains('admin-btn')) {
+                        openAdminPanel();
+                    } else {
+                        changePage(action.getAttribute('data-page'));
+                    }
+                    elements.userMenu.style.display = 'none';
+                });
+            });
+            
+            // Login button
+            elements.loginBtn.addEventListener('click', () => {
+                openAuthModal('login');
+            });
+            
+            // Filters
+            elements.filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all filter buttons
+                    elements.filterBtns.forEach(b => b.classList.remove('active'));
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+                    // Update filter state
+                    state.filter = btn.getAttribute('data-filter');
+                    // Re-render predictions
+                    renderPredictions();
+                });
+            });
+            
+            // Auth modal
+            elements.closeAuthModal.addEventListener('click', () => {
+                elements.authModal.style.display = 'none';
+            });
+            
+            // Auth tabs
+            elements.authTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    elements.authTabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    // Show corresponding form
+                    const tabName = tab.getAttribute('data-tab');
+                    elements.authForms.forEach(form => {
+                        form.classList.toggle('active', form.id === `${tabName}-form`);
+                    });
+                    // Update modal title
+                    elements.authModalTitle.textContent = tabName === 'login' ? 'Connexion' : 'Inscription';
+                    // Update switch text
+                    if (tabName === 'login') {
+                        elements.authSwitchText.textContent = 'Pas de compte ? ';
+                        elements.authSwitchBtn.textContent = 'S\'inscrire';
+                    } else {
+                        elements.authSwitchText.textContent = 'Déjà un compte ? ';
+                        elements.authSwitchBtn.textContent = 'Se connecter';
+                    }
+                });
+            });
+            
+            // Auth switch
+            elements.authSwitchBtn.addEventListener('click', () => {
+                const currentTab = document.querySelector('.auth-tab.active').getAttribute('data-tab');
+                const newTab = currentTab === 'login' ? 'register' : 'login';
+                
+                // Find and click the other tab
+                elements.authTabs.forEach(tab => {
+                    if (tab.getAttribute('data-tab') === newTab) {
+                        tab.click();
+                    }
+                });
+            });
+            
+            // Auth forms
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            document.getElementById('register-form').addEventListener('submit', handleRegister);
+            
+            // Admin panel
+            elements.closeAdminPanel.addEventListener('click', () => {
+                elements.adminPanel.style.display = 'none';
+                resetAdminForm();
+            });
+            
+            // Admin prediction form
+            elements.adminPredictionForm.addEventListener('submit', handleSavePrediction);
+            
+            // Confidence slider
+            elements.confidenceSlider.addEventListener('input', () => {
+                elements.confidenceValue.textContent = elements.confidenceSlider.value;
+            });
+            
+            // Cancel edit
+            elements.cancelEdit.addEventListener('click', resetAdminForm);
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === elements.authModal) {
+                    elements.authModal.style.display = 'none';
+                }
+                if (e.target === elements.adminPanel) {
+                    elements.adminPanel.style.display = 'none';
+                    resetAdminForm();
+                }
+            });
+        }
+
+        // Toggle between dark and light mode
+        function toggleTheme() {
+            state.darkMode = !state.darkMode;
+            
+            if (state.darkMode) {
+                elements.body.classList.remove('light-mode');
+                elements.body.classList.add('dark-mode');
+                
+                // Update header
+                document.querySelector('header').classList.remove('light-header');
+                document.querySelector('header').classList.add('dark-header');
+                
+                // Update theme toggle icon
+                elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                elements.themeToggle.classList.remove('light-theme-toggle');
+                elements.themeToggle.classList.add('dark-theme-toggle');
+                
+                // Update user button
+                elements.userBtn.classList.remove('light-user-btn');
+                elements.userBtn.classList.add('dark-user-btn');
+                
+                // Update nav items
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('light-nav-item');
+                    item.classList.add('dark-nav-item');
+                });
+                
+                // Update mobile nav items
+                document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                    item.classList.remove('light-mobile-nav-item');
+                    item.classList.add('dark-mobile-nav-item');
+                });
+                
+                // Update mobile menu header
+                document.querySelector('.mobile-menu-header').classList.remove('light-mobile-menu-header');
+                document.querySelector('.mobile-menu-header').classList.add('dark-mobile-menu-header');
+                
+                // Update filter buttons
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('light-filter-btn');
+                    btn.classList.add('dark-filter-btn');
+                });
+                
+                // Update prediction cards
+                document.querySelectorAll('.prediction-card').forEach(card => {
+                    card.classList.remove('light-prediction-card');
+                    card.classList.add('dark-prediction-card');
+                });
+                
+                // Update hero
+                document.querySelectorAll('.hero').forEach(hero => {
+                    hero.classList.remove('light-hero');
+                    hero.classList.add('dark-hero');
+                });
+                
+                // Update stat cards
+                document.querySelectorAll('.stat-card').forEach(card => {
+                    card.classList.remove('light-stat-card');
+                    card.classList.add('dark-stat-card');
+                });
+                
+                // Update VIP cards
+                document.querySelectorAll('.vip-card').forEach(card => {
+                    card.classList.remove('light-vip-card');
+                    card.classList.add('dark-vip-card');
+                });
+                
+                // Update account cards
+                document.querySelectorAll('.account-card').forEach(card => {
+                    card.classList.remove('light-account-card');
+                    card.classList.add('dark-account-card');
+                });
+                
+                // Update stats cards
+                document.querySelectorAll('.stats-card').forEach(card => {
+                    card.classList.remove('light-stats-card');
+                    card.classList.add('dark-stats-card');
+                });
+                
+                // Update league stats
+                document.querySelectorAll('.league-stats').forEach(stats => {
+                    stats.classList.remove('light-league-stats');
+                    stats.classList.add('dark-league-stats');
+                });
+                
+                // Update AI analysis
+                document.querySelectorAll('.ai-analysis').forEach(analysis => {
+                    analysis.classList.remove('light-ai-analysis');
+                    analysis.classList.add('dark-ai-analysis');
+                });
+                
+                // Update modals
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.classList.remove('light-modal');
+                    modal.classList.add('dark-modal');
+                });
+                
+                // Update admin panel
+                document.querySelector('.admin-panel').classList.remove('light-admin-panel');
+                document.querySelector('.admin-panel').classList.add('dark-admin-panel');
+                
+                // Update form inputs
+                document.querySelectorAll('.form-input').forEach(input => {
+                    input.classList.remove('light-form-input');
+                    input.classList.add('dark-form-input');
+                });
+                
+                // Update auth tabs
+                document.querySelectorAll('.auth-tab').forEach(tab => {
+                    tab.classList.remove('light-auth-tab');
+                    tab.classList.add('dark-auth-tab');
+                });
+                
+                // Update user menu
+                document.querySelector('.user-menu').classList.remove('light-user-menu');
+                document.querySelector('.user-menu').classList.add('dark-user-menu');
+                
+                // Update user actions
+                document.querySelectorAll('.user-action').forEach(action => {
+                    action.classList.remove('light-user-action');
+                    action.classList.add('dark-user-action');
+                });
+                
+                // Update prediction items
+                document.querySelectorAll('.prediction-item').forEach(item => {
+                    item.classList.remove('light-prediction-item');
+                    item.classList.add('dark-prediction-item');
+                });
+                
+                // Update secondary buttons
+                document.querySelectorAll('.secondary-btn').forEach(btn => {
+                    btn.classList.remove('light-secondary-btn');
+                    btn.classList.add('dark-secondary-btn');
+                });
+            } else {
+                elements.body.classList.remove('dark-mode');
+                elements.body.classList.add('light-mode');
+                
+                // Update header
+                document.querySelector('header').classList.remove('dark-header');
+                document.querySelector('header').classList.add('light-header');
+                
+                // Update theme toggle icon
+                elements.themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                elements.themeToggle.classList.remove('dark-theme-toggle');
+                elements.themeToggle.classList.add('light-theme-toggle');
+                
+                // Update user button
+                elements.userBtn.classList.remove('dark-user-btn');
+                elements.userBtn.classList.add('light-user-btn');
+                
+                // Update nav items
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('dark-nav-item');
+                    item.classList.add('light-nav-item');
+                });
+                
+                // Update mobile nav items
+                document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                    item.classList.remove('dark-mobile-nav-item');
+                    item.classList.add('light-mobile-nav-item');
+                });
+                
+                // Update mobile menu header
+                document.querySelector('.mobile-menu-header').classList.remove('dark-mobile-menu-header');
+                document.querySelector('.mobile-menu-header').classList.add('light-mobile-menu-header');
+                
+                // Update filter buttons
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('dark-filter-btn');
+                    btn.classList.add('light-filter-btn');
+                });
+                
+                // Update prediction cards
+                document.querySelectorAll('.prediction-card').forEach(card => {
+                    card.classList.remove('dark-prediction-card');
+                    card.classList.add('light-prediction-card');
+                });
+                
+                // Update hero
+                document.querySelectorAll('.hero').forEach(hero => {
+                    hero.classList.remove('dark-hero');
+                    hero.classList.add('light-hero');
+                });
+                
+                // Update stat cards
+                document.querySelectorAll('.stat-card').forEach(card => {
+                    card.classList.remove('dark-stat-card');
+                    card.classList.add('light-stat-card');
+                });
+                
+                // Update VIP cards
+                document.querySelectorAll('.vip-card').forEach(card => {
+                    card.classList.remove('dark-vip-card');
+                    card.classList.add('light-vip-card');
+                });
+                
+                // Update account cards
+                document.querySelectorAll('.account-card').forEach(card => {
+                    card.classList.remove('dark-account-card');
+                    card.classList.add('light-account-card');
+                });
+                
+                // Update stats cards
+                document.querySelectorAll('.stats-card').forEach(card => {
+                    card.classList.remove('dark-stats-card');
+                    card.classList.add('light-stats-card');
+                });
+                
+                // Update league stats
+                document.querySelectorAll('.league-stats').forEach(stats => {
+                    stats.classList.remove('dark-league-stats');
+                    stats.classList.add('light-league-stats');
+                });
+                
+                // Update AI analysis
+                document.querySelectorAll('.ai-analysis').forEach(analysis => {
+                    analysis.classList.remove('dark-ai-analysis');
+                    analysis.classList.add('light-ai-analysis');
+                });
+                
+                // Update modals
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.classList.remove('dark-modal');
+                    modal.classList.add('light-modal');
+                });
+                
+                // Update admin panel
+                document.querySelector('.admin-panel').classList.remove('dark-admin-panel');
+                document.querySelector('.admin-panel').classList.add('light-admin-panel');
+                
+                // Update form inputs
+                document.querySelectorAll('.form-input').forEach(input => {
+                    input.classList.remove('dark-form-input');
+                    input.classList.add('light-form-input');
+                });
+                
+                // Update auth tabs
+                document.querySelectorAll('.auth-tab').forEach(tab => {
+                    tab.classList.remove('dark-auth-tab');
+                    tab.classList.add('light-auth-tab');
+                });
+                
+                // Update user menu
+                document.querySelector('.user-menu').classList.remove('dark-user-menu');
+                document.querySelector('.user-menu').classList.add('light-user-menu');
+                
+                // Update user actions
+                document.querySelectorAll('.user-action').forEach(action => {
+                    action.classList.remove('dark-user-action');
+                    action.classList.add('light-user-action');
+                });
+                
+                // Update prediction items
+                document.querySelectorAll('.prediction-item').forEach(item => {
+                    item.classList.remove('dark-prediction-item');
+                    item.classList.add('light-prediction-item');
+                });
+                
+                // Update secondary buttons
+                document.querySelectorAll('.secondary-btn').forEach(btn => {
+                    btn.classList.remove('dark-secondary-btn');
+                    btn.classList.add('light-secondary-btn');
+                });
+            }
+        }
+
+        // Change current page
+        function changePage(page) {
+            state.currentPage = page;
+            
+            // Hide all pages
+            elements.pages.forEach(p => p.classList.remove('active'));
+            
+            // Show current page
+            document.getElementById(`${page}-page`).classList.add('active');
+            
+            // Update active nav item
+            elements.navItems.forEach(item => {
+                item.classList.toggle('active', item.getAttribute('data-page') === page);
+            });
+            
+            // Re-render predictions if needed
+            if (page === 'home' || page === 'predictions' || page === 'vip') {
+                renderPredictions();
+            }
+        }
+
+        // Open auth modal
+        function openAuthModal(mode) {
+            elements.authModal.style.display = 'flex';
+            
+            // Set the correct tab based on mode
+            elements.authTabs.forEach(tab => {
+                if (tab.getAttribute('data-tab') === mode) {
+                    tab.click();
+                }
+            });
+        }
+
+        // Handle login
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+            const password = e.target.querySelector('input[type="password"]').value;
+            
+            // In a real app, you would validate credentials with a server
+            // For this demo, we'll just create a user object
+            const user = {
+                id: Date.now(),
+                email,
+                name: email.split('@')[0],
+                gems: 5,
+                vip: false,
+                isAdmin: email === 'admin@winx.com',
+                trialEnd: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+            };
+            
+            state.currentUser = user;
+            localStorage.setItem('winx_user', JSON.stringify(user));
+            elements.authModal.style.display = 'none';
+            updateUserUI();
+            
+            // Reset form
+            e.target.reset();
+        }
+
+        // Handle register
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = e.target.querySelector('input[type="text"]').value;
+            const email = e.target.querySelector('input[type="email"]').value;
+            const password = e.target.querySelector('input[type="password"]').value;
+            
+            // In a real app, you would send this data to a server
+            // For this demo, we'll just create a user object
+            const user = {
+                id: Date.now(),
+                email,
+                name,
+                gems: 10,
+                vip: false,
+                isAdmin: false,
+                trialEnd: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+            };
+            
+            state.currentUser = user;
+            localStorage.setItem('winx_user', JSON.stringify(user));
+            elements.authModal.style.display = 'none';
+            updateUserUI();
+            
+            // Reset form
+            e.target.reset();
+        }
+
+        // Handle logout
+        function handleLogout() {
+            state.currentUser = null;
+            localStorage.removeItem('winx_user');
+            updateUserUI();
+            changePage('home');
+        }
+
+        // Open admin panel
+        function openAdminPanel() {
+            if (state.currentUser && state.currentUser.isAdmin) {
+                elements.adminPanel.style.display = 'flex';
+                renderAdminPredictions();
+            } else {
+                alert('Accès réservé aux administrateurs');
+            }
+        }
+
+        // Handle save prediction (for admin)
+        function handleSavePrediction(e) {
+            e.preventDefault();
+            
+            const formData = {
+                teamA: document.getElementById('team-a').value,
+                teamB: document.getElementById('team-b').value,
+                league: document.getElementById('league').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                confidence: parseInt(document.getElementById('confidence').value),
+                odds: document.getElementById('odds').value,
+                type: document.getElementById('type').value,
+                prediction: document.getElementById('prediction').value,
+                analysis: document.getElementById('analysis').value
+            };
+            
+            if (state.editingPrediction) {
+                // Update existing prediction
+                const updated = state.predictions.map(p => 
+                    p.id === state.editingPrediction.id ? { ...formData, id: p.id } : p
+                );
+                state.predictions = updated;
+                localStorage.setItem('winx_predictions', JSON.stringify(updated));
+            } else {
+                // Add new prediction
+                const newPrediction = { ...formData, id: Date.now() };
+                state.predictions = [...state.predictions, newPrediction];
+                localStorage.setItem('winx_predictions', JSON.stringify(state.predictions));
             }
             
+            // Reset form and update UI
+            resetAdminForm();
+            renderPredictions();
+            renderAdminPredictions();
+        }
+
+        // Handle delete prediction
+        function handleDeletePrediction(id) {
+            if (confirm('Supprimer cette prédiction ?')) {
+                state.predictions = state.predictions.filter(p => p.id !== id);
+                localStorage.setItem('winx_predictions', JSON.stringify(state.predictions));
+                renderPredictions();
+                renderAdminPredictions();
+            }
+        }
+
+        // Handle edit prediction
+        function handleEditPrediction(id) {
+            const prediction = state.predictions.find(p => p.id === id);
             if (prediction) {
-                // Créer un modal avec les détails de la prédiction
-                const modal = document.createElement('div');
-                modal.className = 'modal-overlay';
-                modal.style.display = 'flex';
-                modal.innerHTML = `
-                    <div class="modal ${state.darkMode ? 'dark-modal' : 'light-modal'}">
-                        <div class="modal-header">
-                            <h3>Détails de la Prédiction</h3>
-                            <button class="close-btn">&times;</button>
-                        </div>
-                        <div class="prediction-details">
-                            ${predictionType === 'unique' ? `
-                                <div class="match-info">
-                                    <h4>${prediction.teamA} vs ${prediction.teamB}</h4>
-                                    <p>${prediction.league} • ${prediction.date} ${prediction.time}</p>
-                                </div>
-                                <div class="prediction-info">
-                                    <p><strong>Type de pari:</strong> ${prediction.betType}</p>
-                                    <p><strong>Prédiction:</strong> ${prediction.prediction}</p>
-                                    <p><strong>Côte:</strong> ${prediction.odds}</p>
-                                    <p><strong>Confiance IA:</strong> ${prediction.confidence}%</p>
-                                </div>
-                            ` : `
-                                <div class="combo-info">
-                                    <h4>Combo à ${prediction.totalOdds}</h4>
-                                    ${prediction.matches.map(match => `
-                                        <div class="combo-match">
-                                            <p><strong>${match.teams}</strong></p>
-                                            <p>Prédiction: ${match.prediction} @ ${match.odds}</p>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            `}
-                            <div class="analysis">
-                                <h4>Analyse IA</h4>
-                                <p>${prediction.analysis}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                state.editingPrediction = prediction;
                 
-                document.body.appendChild(modal);
+                // Fill form with prediction data
+                document.getElementById('team-a').value = prediction.teamA;
+                document.getElementById('team-b').value = prediction.teamB;
+                document.getElementById('league').value = prediction.league;
+                document.getElementById('date').value = prediction.date;
+                document.getElementById('time').value = prediction.time;
+                document.getElementById('confidence').value = prediction.confidence;
+                document.getElementById('confidence-value').textContent = prediction.confidence;
+                document.getElementById('odds').value = prediction.odds;
+                document.getElementById('type').value = prediction.type;
+                document.getElementById('prediction').value = prediction.prediction;
+                document.getElementById('analysis').value = prediction.analysis;
                 
-                // Fermer le modal
-                modal.querySelector('.close-btn').addEventListener('click', () => {
-                    document.body.removeChild(modal);
-                });
-                
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        document.body.removeChild(modal);
-                    }
-                });
+                // Update form title and button text
+                elements.adminFormTitle.textContent = 'Modifier la prédiction';
+                elements.adminSubmitText.textContent = 'Mettre à jour';
+                elements.cancelEdit.style.display = 'block';
             }
         }
 
-        // Regarder une vidéo pour gagner des gemmes
-        function setupVideoReward() {
-            elements.playVideo.addEventListener('click', () => {
-                // Simuler la lecture d'une vidéo
-                elements.playVideo.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lecture...';
-                elements.playVideo.disabled = true;
-                
-                setTimeout(() => {
-                    // Récompense
-                    state.userGems += 0.1;
-                    updateGemsUI();
-                    
-                    // Mettre à jour l'utilisateur
-                    if (state.currentUser) {
-                        state.currentUser.gems = state.userGems;
-                        localStorage.setItem('winx_user', JSON.stringify(state.currentUser));
-                    }
-                    
-                    elements.videoModal.style.display = 'none';
-                    elements.playVideo.innerHTML = '<i class="fas fa-play"></i> Lire la vidéo';
-                    elements.playVideo.disabled = false;
-                    
-                    alert('+0.1 💎 - Vous pouvez maintenant télécharger une prédiction !');
-                }, 3000);
-            });
-            
-            elements.closeVideo.addEventListener('click', () => {
-                elements.videoModal.style.display = 'none';
-            });
+        // Reset admin form
+        function resetAdminForm() {
+            state.editingPrediction = null;
+            elements.adminPredictionForm.reset();
+            elements.confidenceSlider.value = 75;
+            elements.confidenceValue.textContent = '75';
+            elements.adminFormTitle.textContent = 'Nouvelle prédiction';
+            elements.adminSubmitText.textContent = 'Ajouter';
+            elements.cancelEdit.style.display = 'none';
         }
 
-        // Rendu des prédictions amélioré
+        // Render predictions based on current filter and page
         function renderPredictions() {
-            renderUniquePredictions();
-            renderComboPredictions();
+            // Filter predictions based on current filter
+            let filteredPredictions = state.predictions;
+            if (state.filter !== 'all') {
+                filteredPredictions = state.predictions.filter(p => p.type === state.filter);
+            }
+            
+            // Render based on current page
+            if (state.currentPage === 'home') {
+                renderPredictionCards(elements.homePredictions, filteredPredictions.slice(0, 6));
+            } else if (state.currentPage === 'predictions') {
+                renderPredictionCards(elements.predictionsList, filteredPredictions);
+            } else if (state.currentPage === 'vip') {
+                const vipPredictions = state.predictions.filter(p => p.type === 'vip');
+                renderPredictionCards(elements.vipPredictions, vipPredictions);
+            }
         }
 
-        function renderUniquePredictions() {
-            elements.uniquePredictions.innerHTML = '';
+        // Render prediction cards to a container
+        function renderPredictionCards(container, predictions) {
+            container.innerHTML = '';
             
-            state.predictions.unique.forEach(prediction => {
-                const isDownloaded = state.downloadedPredictions.has(prediction.id);
-                const canDownload = state.userGems >= 1 || isDownloaded;
-                
+            if (predictions.length === 0) {
+                container.innerHTML = '<p class="no-predictions">Aucune prédiction disponible</p>';
+                return;
+            }
+            
+            predictions.forEach(prediction => {
                 const card = document.createElement('div');
-                card.className = `prediction-card ${state.darkMode ? 'dark-prediction-card' : 'light-prediction-card'}`;
-                card.style.minWidth = '280px';
+                card.className = `prediction-card ${state.darkMode ? 'dark-prediction-card' : 'light-prediction-card'} fade-in`;
+                
+                const typeClass = `type-${prediction.type}`;
                 
                 card.innerHTML = `
                     <div class="prediction-header">
-                        <span class="prediction-type type-unique">UNIQUE</span>
+                        <span class="prediction-type ${typeClass}">${prediction.type.toUpperCase()}</span>
                         <span class="prediction-league">${prediction.league}</span>
                     </div>
                     
@@ -1162,11 +2955,6 @@
                         <span>${prediction.date} • ${prediction.time}</span>
                     </div>
                     
-                    <div class="prediction-info">
-                        <p><strong>${prediction.betType}</strong></p>
-                        <p>Côte: <span class="odds">${prediction.odds}</span></p>
-                    </div>
-                    
                     <div class="confidence-bar">
                         <div class="confidence-header">
                             <span>Confiance IA</span>
@@ -1177,96 +2965,76 @@
                         </div>
                     </div>
                     
-                    <button class="download-btn ${isDownloaded ? 'downloaded' : ''}" 
-                            data-id="${prediction.id}" 
-                            data-type="unique"
-                            ${isDownloaded ? 'disabled' : !canDownload ? 'disabled' : ''}>
-                        <i class="fas ${isDownloaded ? 'fa-check' : 'fa-download'}"></i>
-                        ${isDownloaded ? 'Déjà téléchargé' : 'Télécharger -1 💎'}
-                    </button>
+                    <div class="prediction-footer">
+                        <span class="prediction-result">Prédiction: ${prediction.prediction}</span>
+                        <span class="prediction-odds">@ ${prediction.odds}</span>
+                    </div>
+                    
+                    <div class="prediction-analysis ${state.darkMode ? 'dark-prediction-analysis' : 'light-prediction-analysis'}">
+                        <i class="fas fa-chart-line analysis-icon"></i>
+                        <span>${prediction.analysis}</span>
+                    </div>
                 `;
                 
-                elements.uniquePredictions.appendChild(card);
-                
-                // Ajouter l'event listener
-                if (!isDownloaded && canDownload) {
-                    card.querySelector('.download-btn').addEventListener('click', () => {
-                        handleDownloadPrediction(prediction.id, 'unique');
-                    });
-                }
+                container.appendChild(card);
             });
         }
 
-        function renderComboPredictions() {
-            elements.comboPredictions.innerHTML = '';
+        // Render predictions in admin panel
+        function renderAdminPredictions() {
+            elements.predictionsCount.textContent = state.predictions.length;
+            elements.adminPredictionsList.innerHTML = '';
             
-            state.predictions.combo.forEach(prediction => {
-                const isDownloaded = state.downloadedPredictions.has(prediction.id);
-                const canDownload = state.userGems >= 1 || isDownloaded;
-                
-                const card = document.createElement('div');
-                card.className = `prediction-card ${state.darkMode ? 'dark-prediction-card' : 'light-prediction-card'}`;
-                
-                card.innerHTML = `
-                    <div class="prediction-header">
-                        <span class="prediction-type type-combo">COMBO</span>
-                        <span class="prediction-odds">Côte: ${prediction.totalOdds}</span>
-                    </div>
-                    
-                    <div class="combo-matches">
-                        ${prediction.matches.map(match => `
-                            <div class="combo-match">
-                                <div class="match-teams">${match.teams}</div>
-                                <div class="match-prediction">${match.prediction} @ ${match.odds}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    
-                    <div class="confidence-bar">
-                        <div class="confidence-header">
-                            <span>Confiance IA</span>
-                            <span class="confidence-value">${prediction.confidence}%</span>
-                        </div>
-                        <div class="confidence-track ${state.darkMode ? 'dark-confidence-track' : 'light-confidence-track'}">
-                            <div class="confidence-fill" style="width: ${prediction.confidence}%"></div>
-                        </div>
-                    </div>
-                    
-                    <button class="download-btn ${isDownloaded ? 'downloaded' : ''}" 
-                            data-id="${prediction.id}" 
-                            data-type="combo"
-                            ${isDownloaded ? 'disabled' : !canDownload ? 'disabled' : ''}>
-                        <i class="fas ${isDownloaded ? 'fa-check' : 'fa-download'}"></i>
-                        ${isDownloaded ? 'Déjà téléchargé' : 'Télécharger -1 💎'}
-                    </button>
-                `;
-                
-                elements.comboPredictions.appendChild(card);
-                
-                // Ajouter l'event listener
-                if (!isDownloaded && canDownload) {
-                    card.querySelector('.download-btn').addEventListener('click', () => {
-                        handleDownloadPrediction(prediction.id, 'combo');
-                    });
-                }
-            });
-        }
-
-        // Setup des event listeners amélioré
-        function setupEventListeners() {
-            // ... (event listeners précédents) ...
-            
-            // Nouveaux event listeners pour la vidéo
-            setupVideoReward();
-            
-            // Charger les prédictions téléchargées
-            const savedDownloads = localStorage.getItem('winx_downloaded');
-            if (savedDownloads) {
-                state.downloadedPredictions = new Set(JSON.parse(savedDownloads));
+            if (state.predictions.length === 0) {
+                elements.adminPredictionsList.innerHTML = '<p class="no-predictions">Aucune prédiction</p>';
+                return;
             }
+            
+            state.predictions.forEach(prediction => {
+                const item = document.createElement('div');
+                item.className = `prediction-item ${state.darkMode ? 'dark-prediction-item' : 'light-prediction-item'}`;
+                
+                const typeClass = `type-${prediction.type}`;
+                
+                item.innerHTML = `
+                    <div class="prediction-item-header">
+                        <div class="prediction-item-teams">${prediction.teamA} vs ${prediction.teamB}</div>
+                        <span class="prediction-type ${typeClass}">${prediction.type.toUpperCase()}</span>
+                    </div>
+                    <div class="prediction-item-meta">${prediction.league} • ${prediction.date} ${prediction.time}</div>
+                    <div class="prediction-item-footer">
+                        <span>Confiance: ${prediction.confidence}%</span>
+                        <span class="prediction-odds">${prediction.prediction} @ ${prediction.odds}</span>
+                    </div>
+                    <div class="prediction-item-actions">
+                        <button class="action-btn edit-btn" data-id="${prediction.id}">
+                            <i class="fas fa-edit"></i>
+                            Modifier
+                        </button>
+                        <button class="action-btn delete-btn" data-id="${prediction.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                elements.adminPredictionsList.appendChild(item);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    handleEditPrediction(parseInt(btn.getAttribute('data-id')));
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    handleDeletePrediction(parseInt(btn.getAttribute('data-id')));
+                });
+            });
         }
 
-        // Initialisation
+        // Initialize the app when DOM is loaded
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
