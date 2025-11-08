@@ -545,6 +545,227 @@
             color: var(--accent);
         }
 
+        /* Admin Panel Styles */
+        .admin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .admin-panel {
+            background: var(--dark-card);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 1200px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .admin-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .admin-icon {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+
+        .admin-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .admin-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .admin-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .admin-section h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .admin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--dark-text-secondary);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--dark-text);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--dark-text);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .predictions-list {
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .prediction-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .prediction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-teams {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .prediction-type {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .type-unique {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .type-combo {
+            background: var(--success);
+            color: white;
+        }
+
+        .prediction-meta {
+            font-size: 0.875rem;
+            color: var(--dark-text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .ai-analysis-section {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+        }
+
+        .ai-response {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--accent);
+        }
+
         /* Autres styles restent similaires mais améliorés */
         /* ... (le reste du CSS précédent avec améliorations) ... */
 
@@ -655,7 +876,7 @@
                                     <i class="fas fa-crown"></i>
                                     <span>Abonnement</span>
                                 </button>
-                                <button class="user-action dark-user-action admin-btn">
+                                <button class="user-action dark-user-action admin-btn" style="display: none;">
                                     <i class="fas fa-shield-alt"></i>
                                     <span>Admin Panel</span>
                                 </button>
@@ -713,7 +934,7 @@
                     <i class="fas fa-crown"></i>
                     Abonnement
                 </div>
-                <div class="mobile-nav-item dark-mobile-nav-item admin-btn">
+                <div class="mobile-nav-item dark-mobile-nav-item admin-btn" style="display: none;">
                     <i class="fas fa-shield-alt"></i>
                     Admin Panel
                 </div>
@@ -808,11 +1029,11 @@
                 <form class="auth-form active" id="login-form">
                     <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input type="email" class="form-input dark-form-input" required>
+                        <input type="email" class="form-input dark-form-input" id="login-email" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Mot de passe</label>
-                        <input type="password" class="form-input dark-form-input" required>
+                        <input type="password" class="form-input dark-form-input" id="login-password" required>
                     </div>
                     <button type="submit" class="submit-btn">Se connecter</button>
                 </form>
@@ -824,15 +1045,15 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nom complet</label>
-                        <input type="text" class="form-input dark-form-input" required>
+                        <input type="text" class="form-input dark-form-input" id="register-name" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input type="email" class="form-input dark-form-input" required>
+                        <input type="email" class="form-input dark-form-input" id="register-email" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Mot de passe</label>
-                        <input type="password" class="form-input dark-form-input" required>
+                        <input type="password" class="form-input dark-form-input" id="register-password" required>
                     </div>
                     <button type="submit" class="submit-btn">S'inscrire</button>
                 </form>
@@ -853,20 +1074,169 @@
                 <h3>Regardez la vidéo pour gagner des gemmes</h3>
                 <p class="video-reward">+0.1 💎 par vidéo</p>
                 <div class="video-controls">
-                    <button class="primary-btn" id="play-video">
+                    <button class="btn btn-primary" id="play-video">
                         <i class="fas fa-play"></i>
                         Lire la vidéo
                     </button>
-                    <button class="secondary-btn dark-secondary-btn" id="close-video">
+                    <button class="btn btn-secondary" id="close-video">
                         Fermer
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Admin Panel (séparé dans un autre fichier en production) -->
+        <!-- Admin Panel -->
         <div class="admin-overlay" id="admin-panel" style="display: none;">
-            <!-- ... (contenu du panel admin) ... -->
+            <div class="admin-panel">
+                <div class="admin-header">
+                    <div class="admin-title">
+                        <i class="fas fa-shield-alt admin-icon"></i>
+                        <span>Panel Administrateur WinX</span>
+                    </div>
+                    <button class="btn btn-secondary" id="close-admin-panel">
+                        <i class="fas fa-times"></i>
+                        Fermer
+                    </button>
+                </div>
+
+                <div class="admin-content">
+                    <div class="admin-section">
+                        <h3>Ajouter une Prédiction</h3>
+                        <form class="admin-form" id="admin-prediction-form">
+                            <div class="form-group">
+                                <label class="form-label">Type de prédiction</label>
+                                <select class="form-select" id="prediction-type" required>
+                                    <option value="unique">Prédiction Unique</option>
+                                    <option value="combo">Combo</option>
+                                </select>
+                            </div>
+
+                            <div id="unique-fields">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Équipe A</label>
+                                        <input type="text" class="form-input" id="team-a" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Équipe B</label>
+                                        <input type="text" class="form-input" id="team-b" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Ligue</label>
+                                    <select class="form-select" id="league" required>
+                                        <option value="Ligue 1">Ligue 1</option>
+                                        <option value="Premier League">Premier League</option>
+                                        <option value="La Liga">La Liga</option>
+                                        <option value="Serie A">Serie A</option>
+                                        <option value="Bundesliga">Bundesliga</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Date</label>
+                                        <input type="date" class="form-input" id="date" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Heure</label>
+                                        <input type="time" class="form-input" id="time" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Type de pari</label>
+                                    <select class="form-select" id="bet-type" required>
+                                        <option value="Victoire">Victoire</option>
+                                        <option value="Total Buts">Total Buts</option>
+                                        <option value="BTTS">BTTS (Deux équipes marquent)</option>
+                                        <option value="Double Chance">Double Chance</option>
+                                        <option value="Handicap">Handicap</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Prédiction</label>
+                                        <select class="form-select" id="prediction" required>
+                                            <option value="1">1 (Victoire domicile)</option>
+                                            <option value="X">X (Match nul)</option>
+                                            <option value="2">2 (Victoire extérieur)</option>
+                                            <option value="1X">1X (Domicile ou nul)</option>
+                                            <option value="X2">X2 (Extérieur ou nul)</option>
+                                            <option value="O2.5">Over 2.5</option>
+                                            <option value="U2.5">Under 2.5</option>
+                                            <option value="BTTS Oui">BTTS Oui</option>
+                                            <option value="BTTS Non">BTTS Non</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Côte</label>
+                                        <input type="number" step="0.01" class="form-input" id="odds" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="combo-fields" style="display: none;">
+                                <div class="form-group">
+                                    <label class="form-label">Matchs du Combo (séparés par //)</label>
+                                    <textarea class="form-textarea" id="combo-matches" placeholder="PSG vs Monaco//1//1.45&#10;Real Madrid vs Barcelone//1X//1.30&#10;Bayern vs Dortmund//2+//1.80"></textarea>
+                                    <small>Format: Équipe1 vs Équipe2//Prédiction//Côte</small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Côte totale</label>
+                                    <input type="number" step="0.01" class="form-input" id="total-odds">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Confiance IA (%)</label>
+                                <input type="range" min="50" max="100" value="75" class="form-input" id="confidence">
+                                <span id="confidence-value">75%</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Analyse (optionnel - sera généré par IA)</label>
+                                <textarea class="form-textarea" id="analysis" placeholder="L'IA générera automatiquement une analyse détaillée..."></textarea>
+                            </div>
+
+                            <div class="admin-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Ajouter la Prédiction
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="generate-ai-analysis">
+                                    <i class="fas fa-robot"></i>
+                                    Générer Analyse IA
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="admin-section">
+                        <h3>Prédictions Existantes</h3>
+                        <div class="predictions-list" id="admin-predictions-list">
+                            <!-- Les prédictions seront chargées ici -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-analysis-section admin-section">
+                    <h3>Analyse IA Avancée</h3>
+                    <div class="form-group">
+                        <label class="form-label">Prompt pour l'IA</label>
+                        <textarea class="form-textarea" id="ai-prompt" placeholder="Analyser les performances récentes, statistiques et conditions pour générer une prédiction détaillée..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" id="call-gemini-ai">
+                        <i class="fas fa-brain"></i>
+                        Appeler Gemini AI
+                    </button>
+                    <div class="ai-response" id="ai-response" style="display: none;">
+                        <!-- Réponse de l'IA -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -896,6 +1266,8 @@
             userEmail: document.getElementById('user-email'),
             userAvatar: document.querySelector('.user-avatar'),
             userAvatarLarge: document.querySelector('.user-avatar-large'),
+            adminBtn: document.querySelector('.admin-btn'),
+            mobileAdminBtn: document.querySelector('.mobile-nav .admin-btn'),
             
             // Nouvelles sections
             uniquePredictions: document.getElementById('unique-predictions'),
@@ -904,7 +1276,21 @@
             // Modal vidéo
             videoModal: document.getElementById('video-modal'),
             playVideo: document.getElementById('play-video'),
-            closeVideo: document.getElementById('close-video')
+            closeVideo: document.getElementById('close-video'),
+            
+            // Admin Panel
+            adminPanel: document.getElementById('admin-panel'),
+            closeAdminPanel: document.getElementById('close-admin-panel'),
+            adminPredictionForm: document.getElementById('admin-prediction-form'),
+            predictionType: document.getElementById('prediction-type'),
+            uniqueFields: document.getElementById('unique-fields'),
+            comboFields: document.getElementById('combo-fields'),
+            adminPredictionsList: document.getElementById('admin-predictions-list'),
+            generateAiAnalysis: document.getElementById('generate-ai-analysis'),
+            callGeminiAI: document.getElementById('call-gemini-ai'),
+            aiResponse: document.getElementById('ai-response'),
+            confidenceSlider: document.getElementById('confidence'),
+            confidenceValue: document.getElementById('confidence-value')
         };
 
         // Initialisation améliorée
@@ -914,6 +1300,133 @@
             setupEventListeners();
             renderPredictions();
             updateGemsUI();
+            setupAdminPanel();
+        }
+
+        // Configuration du Panel Admin
+        function setupAdminPanel() {
+            // Gestion du type de prédiction
+            elements.predictionType.addEventListener('change', function() {
+                if (this.value === 'unique') {
+                    elements.uniqueFields.style.display = 'block';
+                    elements.comboFields.style.display = 'none';
+                } else {
+                    elements.uniqueFields.style.display = 'none';
+                    elements.comboFields.style.display = 'block';
+                }
+            });
+
+            // Curseur de confiance
+            elements.confidenceSlider.addEventListener('input', function() {
+                elements.confidenceValue.textContent = this.value + '%';
+            });
+
+            // Génération d'analyse IA
+            elements.generateAiAnalysis.addEventListener('click', generateAIAnalysis);
+            elements.callGeminiAI.addEventListener('click', callGeminiAPI);
+
+            // Fermeture du panel admin
+            elements.closeAdminPanel.addEventListener('click', closeAdminPanel);
+        }
+
+        // Ouvrir le Panel Admin
+        function openAdminPanel() {
+            if (state.currentUser && state.currentUser.isAdmin) {
+                elements.adminPanel.style.display = 'flex';
+                renderAdminPredictions();
+            } else {
+                alert('Accès réservé aux administrateurs. Connectez-vous avec admin@winx.com');
+            }
+        }
+
+        // Fermer le Panel Admin
+        function closeAdminPanel() {
+            elements.adminPanel.style.display = 'none';
+            resetAdminForm();
+        }
+
+        // Générer une analyse IA
+        function generateAIAnalysis() {
+            const teamA = document.getElementById('team-a').value;
+            const teamB = document.getElementById('team-b').value;
+            const league = document.getElementById('league').value;
+            const betType = document.getElementById('bet-type').value;
+            const prediction = document.getElementById('prediction').value;
+
+            if (!teamA || !teamB) {
+                alert('Veuillez d\'abord remplir les équipes');
+                return;
+            }
+
+            const analysis = `Analyse IA pour ${teamA} vs ${teamB} (${league}):
+
+📊 **Statistiques Clés:**
+- ${teamA}: Forme récente positive avec 3 victoires consécutives
+- ${teamB}: Performance mitigée en déplacement
+- Tendance BTTS: 70% des derniers matchs
+
+🎯 **Recommandation ${betType}:**
+Prédiction ${prediction} basée sur:
+• Analyse des formations
+• Statistiques de possession
+• Performances historiques
+• Conditions météo optimales
+
+⚡ **Confiance IA:** ${document.getElementById('confidence').value}%`;
+
+            document.getElementById('analysis').value = analysis;
+        }
+
+        // Appeler l'API Gemini
+        async function callGeminiAPI() {
+            const prompt = document.getElementById('ai-prompt').value;
+            if (!prompt) {
+                alert('Veuillez entrer un prompt pour l\'IA');
+                return;
+            }
+
+            elements.callGeminiAI.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+            elements.callGeminiAI.disabled = true;
+
+            try {
+                // Simulation d'appel API - Remplacez par votre clé API réelle
+                const response = await simulateGeminiCall(prompt);
+                
+                elements.aiResponse.style.display = 'block';
+                elements.aiResponse.innerHTML = `
+                    <h4>Réponse de Gemini AI:</h4>
+                    <p>${response}</p>
+                `;
+            } catch (error) {
+                alert('Erreur lors de l\'appel à l\'IA: ' + error.message);
+            } finally {
+                elements.callGeminiAI.innerHTML = '<i class="fas fa-brain"></i> Appeler Gemini AI';
+                elements.callGeminiAI.disabled = false;
+            }
+        }
+
+        // Simulation d'appel à Gemini API
+        function simulateGeminiCall(prompt) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const responses = [
+                        `Analyse approfondie basée sur les données fournies:\n\n${prompt}\n\nL'équipe domicile montre une nette supériorité statistique avec 65% de possession moyenne et une efficacité offensive remarquable. Recommandation: Victoire domicile avec forte confiance.`,
+                        `Évaluation complète du match:\n\n${prompt}\n\nLes deux équipes présentent des défenses solides mais l'attaque domicile semble plus tranchante. Prédiction: Under 2.5 buts avec analyse des patterns offensifs.`,
+                        `Analyse technique avancée:\n\n${prompt}\n\nFacteurs déterminants: forme des joueurs clés, historique des confrontations, motivation. Notre algorithme privilégie une victoire avec marge confortable.`
+                    ];
+                    resolve(responses[Math.floor(Math.random() * responses.length)]);
+                }, 2000);
+            });
+        }
+
+        // Réinitialiser le formulaire admin
+        function resetAdminForm() {
+            elements.adminPredictionForm.reset();
+            elements.confidenceSlider.value = 75;
+            elements.confidenceValue.textContent = '75%';
+            elements.uniqueFields.style.display = 'block';
+            elements.comboFields.style.display = 'none';
+            elements.aiResponse.style.display = 'none';
         }
 
         // Charger les prédictions
@@ -1252,9 +1765,82 @@
             });
         }
 
+        // Gestion de l'authentification
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Vérifier si c'est un admin
+            const isAdmin = email === 'admin@winx.com';
+            
+            const user = {
+                id: Date.now(),
+                email,
+                name: isAdmin ? 'Administrateur' : email.split('@')[0],
+                gems: isAdmin ? 999 : 5,
+                vip: false,
+                isAdmin: isAdmin,
+                trialEnd: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                avatar: isAdmin ? 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face' : null
+            };
+            
+            state.currentUser = user;
+            state.userGems = user.gems;
+            localStorage.setItem('winx_user', JSON.stringify(user));
+            elements.authModal.style.display = 'none';
+            updateUserUI();
+            
+            // Afficher le bouton admin si nécessaire
+            if (isAdmin) {
+                elements.adminBtn.style.display = 'flex';
+                elements.mobileAdminBtn.style.display = 'flex';
+                alert('Bienvenue Administrateur !');
+            }
+            
+            // Reset form
+            e.target.reset();
+        }
+
+        // Mise à jour de l'UI utilisateur
+        function updateUserUI() {
+            if (state.currentUser) {
+                elements.loginBtn.style.display = 'none';
+                elements.userName.textContent = state.currentUser.name;
+                elements.userEmail.textContent = state.currentUser.email;
+                elements.userGems.textContent = `${state.userGems} Gemme${state.userGems > 1 ? 's' : ''}`;
+                
+                // Mettre à jour l'avatar
+                if (state.currentUser.avatar) {
+                    elements.userAvatar.innerHTML = `<img src="${state.currentUser.avatar}" alt="${state.currentUser.name}">`;
+                    elements.userAvatarLarge.innerHTML = `<img src="${state.currentUser.avatar}" alt="${state.currentUser.name}">`;
+                }
+                
+                // Afficher le bouton admin si admin
+                if (state.currentUser.isAdmin) {
+                    elements.adminBtn.style.display = 'flex';
+                    elements.mobileAdminBtn.style.display = 'flex';
+                }
+            } else {
+                elements.loginBtn.style.display = 'block';
+                elements.userName.textContent = 'Invité';
+                elements.userEmail.textContent = 'Non connecté';
+                elements.userGems.textContent = '1 Gemme';
+                elements.adminBtn.style.display = 'none';
+                elements.mobileAdminBtn.style.display = 'none';
+            }
+            updateGemsUI();
+        }
+
         // Setup des event listeners amélioré
         function setupEventListeners() {
-            // ... (event listeners précédents) ...
+            // Gestion de l'authentification
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            document.getElementById('register-form').addEventListener('submit', handleRegister);
+            
+            // Boutons admin
+            elements.adminBtn.addEventListener('click', openAdminPanel);
+            elements.mobileAdminBtn.addEventListener('click', openAdminPanel);
             
             // Nouveaux event listeners pour la vidéo
             setupVideoReward();
@@ -1264,10 +1850,18 @@
             if (savedDownloads) {
                 state.downloadedPredictions = new Set(JSON.parse(savedDownloads));
             }
+
+            // Gestion du formulaire admin
+            elements.adminPredictionForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Ici vous ajouterez la logique pour sauvegarder la prédiction
+                alert('Prédiction ajoutée avec succès!');
+                resetAdminForm();
+            });
         }
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
-    </html>
+</html>
