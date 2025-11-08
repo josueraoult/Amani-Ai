@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinX - Prédictions Football IA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Styles existants inchangés */
+        :root {
+            --primary: #8B5CF6;
+            --primary-dark: #7C3AED;
+            --secondary: #3B82F6;
+            --accent: #F59E0B;
+            --success: #10B981;
+            --danger: #EF4444;
+            --dark-bg: #0F172A;
+            --dark-card: #1E293B;
+            --dark-text: #F1F5F9;
+            --dark-text-secondary: #94A3B8;
+            --light-bg: #F8FAFC;
+            --light-card: #FFFFFF;
+            --light-text: #1E293B;
+            --light-text-secondary: #64748B;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+        }
+
+        /* Tous les styles CSS existants restent inchangés */
+        /* ... */
+
+        /* Nouveaux styles pour les fonctionnalités ajoutées */
+        
+        /* Styles pour les images de profil */
+        .profile-image-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 1rem;
+            cursor: pointer;
+            border: 2px solid var(--primary);
+        }
+        
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .profile-image-upload {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            padding: 0.25rem;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .profile-image-container:hover .profile-image-upload {
+            opacity: 1;
+        }
+        
+        /* Styles pour les images des clubs */
+        .team-logo-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 0.5rem;
+        }
+        
+        .team-logo-placeholder {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Styles pour les publicités */
+        .ad-container {
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dark-ad-container {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        
+        .light-ad-container {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        
+        .ad-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .ad-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ad-description {
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+        
+        .ad-reward {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .ad-gem {
+            color: var(--accent);
+        }
+        
+        .watch-ad-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+        }
+        
+        .watch-ad-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 20px -5px rgba(139, 92, 246, 0.4);
+        }
+        
+        .watch-ad-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Styles pour les prédictions verrouillées */
+        .locked-prediction {
+            position: relative;
+            filter: blur(3px);
+            pointer-events: none;
+        }
+        
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 5;
+        }
+        
+        .unlock-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--accent), #EAB308);
+            color: #1E293B;
+            border: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .unlock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.4);
+        }
+        
+        /* Styles pour les nouveaux types de paris */
+        .prediction-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .prediction-type-option {
+            padding: 0.75rem;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: 1px solid;
+        }
+        
+        .dark-prediction-type-option {
+            background: var(--dark-card);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: var(--dark-text);
+        }
+        
+        .dark-prediction-type-option.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
+        }
+        
+        .light-prediction-type-option {
+            background: var(--light-card);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: var(--light-text);
+        }
+        
+        .light-prediction-type-option.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
+        }
+        
+        /* Styles pour les ligues et tournois */
+        .league-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .league-option {
+            padding: 0.75rem;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: 1px solid;
+        }
+        
+        .dark-league-option {
+            background: var(--dark-card);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: var(--dark-text);
+        }
+        
+        .dark-league-option.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
+        }
+        
+        .light-league-option {
+            background: var(--light-card);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: var(--light-text);
+        }
+        
+        .light-league-option.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
+        }
+        
+        /* Styles pour la génération d'analyse IA */
+        .ai-generate-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--success), #34D399);
+            color: white;
+            border: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .ai-generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
+        }
+        
+        .ai-generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Styles pour les gemmes dans l'interface */
+        .gem-counter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .gem-icon {
+            color: var(--accent);
+        }
+        
+        /* Styles pour les prédictions déverrouillées avec gemmes */
+        .unlock-with-gems {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        /* Styles pour les images dans le panel admin */
+        .admin-image-upload {
+            margin-bottom: 1rem;
+        }
+        
+        .admin-image-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-top: 0.5rem;
+            border: 1px solid;
+        }
+        
+        .dark-admin-image-preview {
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .light-admin-image-preview {
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="app-container">
+        <!-- Header (inchangé) -->
+        <header class="dark-header">
+            <div class="header-content">
+                <div class="logo">
+                    <button class="mobile-menu-btn dark-theme-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="logo-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>WinX</h1>
+                        <p>SmartPredict AI</p>
+                    </div>
+                </div>
+
+                <nav class="nav-desktop">
+                    <div class="nav-item dark-nav-item active" data-page="home">Accueil</div>
+                    <div class="nav-item dark-nav-item" data-page="predictions">Prédictions</div>
+                    <div class="nav-item dark-nav-item" data-page="vip">VIP</div>
+                    <div class="nav-item dark-nav-item" data-page="stats">Statistiques</div>
+                </nav>
+
+                <div class="header-actions">
+                    <button class="theme-toggle dark-theme-toggle">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                    
+                    <div class="user-section">
+                        <button class="user-btn dark-user-btn">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        
+                        <div class="user-menu dark-user-menu" style="display: none;">
+                            <div class="user-header">
+                                <p class="user-name">Nom Utilisateur</p>
+                                <p class="user-email">email@exemple.com</p>
+                                <div class="user-stats">
+                                    <i class="fas fa-gem"></i>
+                                    <span>5 Gemmes</span>
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="user-action dark-user-action" data-page="account">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Mon compte</span>
+                                </button>
+                                <button class="user-action dark-user-action admin-btn">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Admin Panel</span>
+                                </button>
+                                <button class="user-action dark-user-action logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Déconnexion</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="login-btn">Connexion</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Menu (inchangé) -->
+        <div class="mobile-menu" style="display: none;">
+            <div class="mobile-menu-header dark-mobile-menu-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>WinX</h1>
+                        <p>SmartPredict AI</p>
+                    </div>
+                </div>
+                <button class="close-mobile-menu dark-theme-toggle">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <nav class="mobile-nav">
+                <div class="mobile-nav-item dark-mobile-nav-item active" data-page="home">Accueil</div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="predictions">Prédictions</div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="vip">VIP</div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="stats">Statistiques</div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="account">Mon compte</div>
+                <div class="mobile-nav-item dark-mobile-nav-item admin-btn">Admin Panel</div>
+                <div class="mobile-nav-item dark-mobile-nav-item logout-btn">Déconnexion</div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Home Page (inchangé) -->
+            <section id="home-page" class="page active">
+                <!-- Contenu existant inchangé -->
+                <div class="hero dark-hero fade-in">
+                    <h2>Prédictions Football IA</h2>
+                    <p>Algorithme avancé analysant 200+ facteurs pour des prédictions ultra-précises</p>
+                    
+                    <div class="stats">
+                        <div class="stat-card dark-stat-card">
+                            <div class="stat-icon" style="color: #10B981;">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-value">94.5%</div>
+                            <div class="stat-label">Précision</div>
+                        </div>
+                        <div class="stat-card dark-stat-card">
+                            <div class="stat-icon" style="color: #3B82F6;">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="stat-value">15K+</div>
+                            <div class="stat-label">Utilisateurs</div>
+                        </div>
+                        <div class="stat-card dark-stat-card">
+                            <div class="stat-icon" style="color: #F59E0B;">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="stat-value">+22%</div>
+                            <div class="stat-label">ROI Moyen</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section publicité pour gagner des gemmes -->
+                <div class="ad-container dark-ad-container">
+                    <div class="ad-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3 class="ad-title">Gagnez des Gemmes Gratuitement</h3>
+                    <p class="ad-description">Regardez une publicité et gagnez des gemmes pour déverrouiller des prédictions premium</p>
+                    <div class="ad-reward">
+                        <i class="fas fa-gem ad-gem"></i>
+                        <span>+0.5 Gemme par publicité</span>
+                    </div>
+                    <button class="watch-ad-btn" id="watch-ad-btn">
+                        <i class="fas fa-play-circle"></i>
+                        Regarder une publicité
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <button class="filter-btn dark-filter-btn active" data-filter="all">
+                        <i class="fas fa-chart-bar"></i>
+                        Toutes
+                    </button>
+                    <button class="filter-btn dark-filter-btn" data-filter="combo">
+                        <i class="fas fa-star"></i>
+                        Combo
+                    </button>
+                    <button class="filter-btn dark-filter-btn" data-filter="vip">
+                        <i class="fas fa-crown"></i>
+                        VIP
+                    </button>
+                    <button class="filter-btn dark-filter-btn" data-filter="unique">
+                        <i class="fas fa-bolt"></i>
+                        Unique
+                    </button>
+                </div>
+
+                <div class="predictions-grid" id="home-predictions">
+                    <!-- Predictions will be loaded here by JavaScript -->
+                </div>
+
+                <div class="ai-analysis dark-ai-analysis">
+                    <h3><i class="fas fa-robot"></i> Analyse IA Avancée</h3>
+                    <div class="ai-analysis-content">
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="ai-factor-value">94.5%</div>
+                            <div class="ai-factor-label">Précision Globale</div>
+                        </div>
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="ai-factor-value">200+</div>
+                            <div class="ai-factor-label">Facteurs Analysés</div>
+                        </div>
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="ai-factor-value">10M+</div>
+                            <div class="ai-factor-label">Points de Données</div>
+                        </div>
+                        <div class="ai-factor">
+                            <div class="ai-factor-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="ai-factor-value">AI</div>
+                            <div class="ai-factor-label">Deep Learning</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Autres pages (inchangées) -->
+            <!-- Predictions Page -->
+            <section id="predictions-page" class="page">
+                <!-- Contenu inchangé -->
+            </section>
+
+            <!-- VIP Page -->
+            <section id="vip-page" class="page">
+                <!-- Contenu inchangé -->
+            </section>
+
+            <!-- Account Page - MODIFIÉE pour ajouter l'upload d'image -->
+            <section id="account-page" class="page">
+                <h2 class="section-title">Mon Compte</h2>
+                
+                <div class="account-section">
+                    <div class="account-card dark-account-card">
+                        <h3>Photo de profil</h3>
+                        <div class="profile-image-container" id="profile-image-container">
+                            <div class="profile-image-placeholder" id="profile-image-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <img class="profile-image" id="profile-image" style="display: none;">
+                            <div class="profile-image-upload">
+                                <i class="fas fa-camera"></i> Modifier
+                            </div>
+                            <input type="file" id="profile-image-input" accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <h3>Informations du compte</h3>
+                        <div class="form-group">
+                            <label class="form-label">Nom</label>
+                            <input type="text" class="form-input dark-form-input" value="Nom Utilisateur">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input dark-form-input" value="email@exemple.com">
+                        </div>
+                        <button class="save-btn">Sauvegarder les modifications</button>
+                    </div>
+
+                    <div class="account-card dark-account-card">
+                        <h3>Statistiques</h3>
+                        <div class="account-stats">
+                            <div class="stat-item dark-stat-item">
+                                <div class="stat-item-icon" style="color: #F59E0B;">
+                                    <i class="fas fa-gem"></i>
+                                </div>
+                                <div class="stat-item-value">5</div>
+                                <div class="stat-item-label">Gemmes</div>
+                            </div>
+                            <div class="stat-item dark-stat-item">
+                                <div class="stat-item-icon" style="color: #3B82F6;">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                <div class="stat-item-value">24</div>
+                                <div class="stat-item-label">Prédictions vues</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Page -->
+            <section id="stats-page" class="page">
+                <!-- Contenu inchangé -->
+            </section>
+        </main>
+
+        <!-- Auth Modal (inchangé) -->
+        <div class="modal-overlay" id="auth-modal" style="display: none;">
+            <!-- Contenu inchangé -->
+        </div>
+
+        <!-- Admin Panel - MODIFIÉ pour ajouter les nouvelles fonctionnalités -->
+        <div class="admin-overlay" id="admin-panel" style="display: none;">
+            <div class="admin-panel dark-admin-panel">
+                <div class="admin-header">
+                    <div class="admin-title">
+                        <i class="fas fa-shield-alt admin-icon"></i>
+                        <span>Panel Administrateur</span>
+                    </div>
+                    <button class="close-btn" id="close-admin-panel">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="admin-content">
+                    <div>
+                        <h3 class="admin-form-title" id="admin-form-title">Nouvelle prédiction</h3>
+                        
+                        <form id="admin-prediction-form">
+                            <!-- Upload d'images pour les équipes -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Logo Équipe A</label>
+                                    <input type="file" class="form-input dark-form-input admin-image-upload" id="team-a-logo" accept="image/*">
+                                    <img class="admin-image-preview dark-admin-image-preview" id="team-a-preview" style="display: none;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Logo Équipe B</label>
+                                    <input type="file" class="form-input dark-form-input admin-image-upload" id="team-b-logo" accept="image/*">
+                                    <img class="admin-image-preview dark-admin-image-preview" id="team-b-preview" style="display: none;">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Équipe A</label>
+                                    <input type="text" class="form-input dark-form-input" id="team-a" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Équipe B</label>
+                                    <input type="text" class="form-input dark-form-input" id="team-b" required>
+                                </div>
+                            </div>
+
+                            <!-- Sélecteur de ligue/tournoi amélioré -->
+                            <div class="form-group">
+                                <label class="form-label">Ligue/Tournoi</label>
+                                <div class="league-selector">
+                                    <div class="league-option dark-league-option active" data-league="Ligue 1">Ligue 1</div>
+                                    <div class="league-option dark-league-option" data-league="Premier League">Premier League</div>
+                                    <div class="league-option dark-league-option" data-league="La Liga">La Liga</div>
+                                    <div class="league-option dark-league-option" data-league="Serie A">Serie A</div>
+                                    <div class="league-option dark-league-option" data-league="Bundesliga">Bundesliga</div>
+                                    <div class="league-option dark-league-option" data-league="Ligue des Champions">Ligue des Champions</div>
+                                    <div class="league-option dark-league-option" data-league="Ligue Europa">Ligue Europa</div>
+                                    <div class="league-option dark-league-option" data-league="Coupe de France">Coupe de France</div>
+                                    <div class="league-option dark-league-option" data-league="Coupe d'Angleterre">Coupe d'Angleterre</div>
+                                    <div class="league-option dark-league-option" data-league="Coupe d'Espagne">Coupe d'Espagne</div>
+                                </div>
+                                <input type="hidden" id="league" value="Ligue 1">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" class="form-input dark-form-input" id="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Heure</label>
+                                    <input type="time" class="form-input dark-form-input" id="time" required>
+                                </div>
+                            </div>
+
+                            <!-- Sélecteur de type de pari amélioré -->
+                            <div class="form-group">
+                                <label class="form-label">Type de pari</label>
+                                <div class="prediction-type-selector">
+                                    <div class="prediction-type-option dark-prediction-type-option active" data-type="combo">Combo</div>
+                                    <div class="prediction-type-option dark-prediction-type-option" data-type="vip">VIP</div>
+                                    <div class="prediction-type-option dark-prediction-type-option" data-type="unique">Unique</div>
+                                    <div class="prediction-type-option dark-prediction-type-option" data-bet-type="victory">Victoire</div>
+                                    <div class="prediction-type-option dark-prediction-type-option" data-bet-type="btts">BTTS</div>
+                                    <div class="prediction-type-option dark-prediction-type-option" data-bet-type="over">Over 2.5</div>
+                                    <div class="prediction-type-option dark-prediction-type-option" data-bet-type="under">Under 2.5</div>
+                                    <div class="prediction-type-option dark-prediction-type-option" data-bet-type="draw">Match Nul</div>
+                                </div>
+                                <input type="hidden" id="type" value="combo">
+                                <input type="hidden" id="bet-type" value="victory">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Prédiction</label>
+                                    <select class="form-input dark-form-input" id="prediction">
+                                        <option value="1">1</option>
+                                        <option value="X">X</option>
+                                        <option value="2">2</option>
+                                        <option value="1X">1X</option>
+                                        <option value="X2">X2</option>
+                                        <option value="12">12</option>
+                                        <option value="BTTS Oui">BTTS Oui</option>
+                                        <option value="BTTS Non">BTTS Non</option>
+                                        <option value="Over 2.5">Over 2.5</option>
+                                        <option value="Under 2.5">Under 2.5</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Cote</label>
+                                    <input type="number" step="0.01" class="form-input dark-form-input" id="odds" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Coût en gemmes</label>
+                                    <input type="number" class="form-input dark-form-input" id="gem-cost" value="1" min="1" max="10">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Confiance IA: <span id="confidence-value">75</span>%</label>
+                                <input type="range" min="50" max="100" value="75" class="form-full" id="confidence">
+                            </div>
+
+                            <!-- Génération d'analyse IA -->
+                            <button type="button" class="ai-generate-btn" id="generate-analysis-btn">
+                                <i class="fas fa-robot"></i>
+                                Générer l'analyse avec IA
+                            </button>
+
+                            <div class="form-group">
+                                <label class="form-label">Analyse</label>
+                                <textarea class="form-input dark-form-input" id="analysis" rows="3" required></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="primary-btn">
+                                    <i class="fas fa-save"></i>
+                                    <span id="admin-submit-text">Ajouter</span>
+                                </button>
+                                <button type="button" class="secondary-btn dark-secondary-btn" id="cancel-edit" style="display: none;">
+                                    Annuler
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div>
+                        <h3 class="admin-form-title">Prédictions existantes (<span id="predictions-count">0</span>)</h3>
+                        
+                        <div class="predictions-list" id="admin-predictions-list">
+                            <!-- Admin predictions list will be loaded here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State - MODIFIÉ pour inclure les nouvelles données
+        const state = {
+            darkMode: true,
+            currentPage: 'home',
+            currentUser: null,
+            predictions: [],
+            filter: 'all',
+            editingPrediction: null,
+            userProfileImage: null,
+            teamLogos: {},
+            watchedAds: 0,
+            lastAdWatch: null
+        };
+
+        // DOM Elements - MODIFIÉ pour inclure les nouveaux éléments
+        const elements = {
+            // Éléments existants
+            body: document.body,
+            themeToggle: document.querySelector('.theme-toggle'),
+            navItems: document.querySelectorAll('.nav-item'),
+            mobileMenuBtn: document.querySelector('.mobile-menu-btn'),
+            mobileMenu: document.querySelector('.mobile-menu'),
+            closeMobileMenu: document.querySelector('.close-mobile-menu'),
+            mobileNavItems: document.querySelectorAll('.mobile-nav-item'),
+            pages: document.querySelectorAll('.page'),
+            userBtn: document.querySelector('.user-btn'),
+            userMenu: document.querySelector('.user-menu'),
+            loginBtn: document.querySelector('.login-btn'),
+            logoutBtn: document.querySelector('.logout-btn'),
+            adminBtn: document.querySelector('.admin-btn'),
+            filterBtns: document.querySelectorAll('.filter-btn'),
+            authModal: document.getElementById('auth-modal'),
+            closeAuthModal: document.getElementById('close-auth-modal'),
+            authTabs: document.querySelectorAll('.auth-tab'),
+            authForms: document.querySelectorAll('.auth-form'),
+            authSwitchBtn: document.getElementById('auth-switch-btn'),
+            authSwitchText: document.getElementById('auth-switch-text'),
+            authModalTitle: document.getElementById('auth-modal-title'),
+            adminPanel: document.getElementById('admin-panel'),
+            closeAdminPanel: document.getElementById('close-admin-panel'),
+            adminPredictionForm: document.getElementById('admin-prediction-form'),
+            adminSubmitText: document.getElementById('admin-submit-text'),
+            adminFormTitle: document.getElementById('admin-form-title'),
+            cancelEdit: document.getElementById('cancel-edit'),
+            confidenceSlider: document.getElementById('confidence'),
+            confidenceValue: document.getElementById('confidence-value'),
+            predictionsCount: document.getElementById('predictions-count'),
+            adminPredictionsList: document.getElementById('admin-predictions-list'),
+            homePredictions: document.getElementById('home-predictions'),
+            predictionsList: document.getElementById('predictions-list'),
+            vipPredictions: document.getElementById('vip-predictions'),
+            
+            // Nouveaux éléments
+            profileImageContainer: document.getElementById('profile-image-container'),
+            profileImagePlaceholder: document.getElementById('profile-image-placeholder'),
+            profileImage: document.getElementById('profile-image'),
+            profileImageInput: document.getElementById('profile-image-input'),
+            watchAdBtn: document.getElementById('watch-ad-btn'),
+            generateAnalysisBtn: document.getElementById('generate-analysis-btn'),
+            teamALogoInput: document.getElementById('team-a-logo'),
+            teamBLogoInput: document.getElementById('team-b-logo'),
+            teamAPreview: document.getElementById('team-a-preview'),
+            teamBPreview: document.getElementById('team-b-preview'),
+            leagueOptions: document.querySelectorAll('.league-option'),
+            predictionTypeOptions: document.querySelectorAll('.prediction-type-option'),
+            betTypeOptions: document.querySelectorAll('[data-bet-type]'),
+            gemCostInput: document.getElementById('gem-cost'),
+            leagueHiddenInput: document.getElementById('league'),
+            typeHiddenInput: document.getElementById('type'),
+            betTypeHiddenInput: document.getElementById('bet-type')
+        };
+
+        // Initialize the application - MODIFIÉ pour charger les nouvelles données
+        function init() {
+            loadUser();
+            loadPredictions();
+            loadUserProfileImage();
+            loadTeamLogos();
+            setupEventListeners();
+            renderPredictions();
+        }
+
+        // Load user from localStorage - MODIFIÉ pour charger l'image de profil
+        function loadUser() {
+            const savedUser = localStorage.getItem('winx_user');
+            if (savedUser) {
+                state.currentUser = JSON.parse(savedUser);
+                updateUserUI();
+            }
+            
+            // Charger les données des publicités
+            const adData = localStorage.getItem('winx_ad_data');
+            if (adData) {
+                const { watchedAds, lastAdWatch } = JSON.parse(adData);
+                state.watchedAds = watchedAds || 0;
+                state.lastAdWatch = lastAdWatch ? new Date(lastAdWatch) : null;
+            }
+        }
+
+        // Charger l'image de profil de l'utilisateur
+        function loadUserProfileImage() {
+            const savedProfileImage = localStorage.getItem('winx_profile_image');
+            if (savedProfileImage) {
+                state.userProfileImage = savedProfileImage;
+                elements.profileImage.src = savedProfileImage;
+                elements.profileImage.style.display = 'block';
+                elements.profileImagePlaceholder.style.display = 'none';
+            }
+        }
+
+        // Charger les logos des équipes
+        function loadTeamLogos() {
+            const savedTeamLogos = localStorage.getItem('winx_team_logos');
+            if (savedTeamLogos) {
+                state.teamLogos = JSON.parse(savedTeamLogos);
+            }
+        }
+
+        // Load predictions from localStorage or generate initial ones - MODIFIÉ pour inclure le coût en gemmes
+        function loadPredictions() {
+            const savedPredictions = localStorage.getItem('winx_predictions');
+            if (savedPredictions) {
+                state.predictions = JSON.parse(savedPredictions);
+            } else {
+                state.predictions = generateInitialPredictions();
+                localStorage.setItem('winx_predictions', JSON.stringify(state.predictions));
+            }
+        }
+
+        // Generate initial predictions - MODIFIÉ pour inclure le coût en gemmes
+        function generateInitialPredictions() {
+            const leagues = ['Ligue 1', 'Premier League', 'La Liga', 'Serie A', 'Bundesliga'];
+            const teams = ['PSG', 'OM', 'OL', 'Monaco', 'Real Madrid', 'Barcelona', 'Bayern', 'Dortmund', 'Juventus', 'Inter', 'Man City', 'Liverpool', 'Chelsea', 'Arsenal'];
+            
+            return Array.from({ length: 12 }, (_, i) => {
+                const teamA = teams[Math.floor(Math.random() * teams.length)];
+                let teamB = teams[Math.floor(Math.random() * teams.length)];
+                while (teamB === teamA) teamB = teams[Math.floor(Math.random() * teams.length)];
+                
+                const type = ['combo', 'vip', 'unique'][Math.floor(Math.random() * 3)];
+                const gemCost = type === 'vip' ? 2 : 1;
+                
+                return {
+                    id: Date.now() + i,
+                    teamA,
+                    teamB,
+                    league: leagues[Math.floor(Math.random() * leagues.length)],
+                    date: new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    time: `${Math.floor(Math.random() * 12) + 10}:${['00', '30'][Math.floor(Math.random() * 2)]}`,
+                    confidence: Math.floor(Math.random() * 40) + 60,
+                    odds: (1.5 + Math.random() * 2).toFixed(2),
+                    type: type,
+                    prediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)],
+                    analysis: 'Analyse basée sur les dernières performances et statistiques des équipes, forme des joueurs, et conditions de match.',
+                    gemCost: gemCost,
+                    unlocked: i < 3 // Les 3 premières prédictions sont déverrouillées par défaut
+                };
+            });
+        }
+
+        // Update user UI based on login state - MODIFIÉ pour afficher les gemmes
+        function updateUserUI() {
+            if (state.currentUser) {
+                elements.loginBtn.style.display = 'none';
+                document.querySelector('.user-name').textContent = state.currentUser.name;
+                document.querySelector('.user-email').textContent = state.currentUser.email;
+                document.querySelector('.user-stats span').textContent = `${state.currentUser.gems} Gemmes`;
+                
+                // Mettre à jour le compteur de gemmes dans l'en-tête
+                const gemCounter = document.querySelector('.gem-counter');
+                if (!gemCounter) {
+                    const userStats = document.querySelector('.user-stats');
+                    userStats.innerHTML = `<i class="fas fa-gem gem-icon"></i><span>${state.currentUser.gems} Gemmes</span>`;
+                    userStats.classList.add('gem-counter');
+                } else {
+                    gemCounter.innerHTML = `<i class="fas fa-gem gem-icon"></i><span>${state.currentUser.gems} Gemmes</span>`;
+                }
+                
+                // Show admin button if user is admin
+                if (state.currentUser.isAdmin) {
+                    document.querySelector('.admin-btn').style.display = 'flex';
+                } else {
+                    document.querySelector('.admin-btn').style.display = 'none';
+                }
+            } else {
+                elements.loginBtn.style.display = 'block';
+                document.querySelector('.user-name').textContent = 'Nom Utilisateur';
+                document.querySelector('.user-email').textContent = 'email@exemple.com';
+                document.querySelector('.user-stats span').textContent = '5 Gemmes';
+                document.querySelector('.admin-btn').style.display = 'none';
+            }
+        }
+
+        // Setup all event listeners - MODIFIÉ pour inclure les nouveaux écouteurs
+        function setupEventListeners() {
+            // Écouteurs existants
+            elements.themeToggle.addEventListener('click', toggleTheme);
+            elements.navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    changePage(item.getAttribute('data-page'));
+                });
+            });
+            elements.mobileMenuBtn.addEventListener('click', () => {
+                elements.mobileMenu.style.display = 'flex';
+            });
+            elements.closeMobileMenu.addEventListener('click', () => {
+                elements.mobileMenu.style.display = 'none';
+            });
+            elements.mobileNavItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (item.classList.contains('admin-btn')) {
+                        openAdminPanel();
+                    } else if (item.classList.contains('logout-btn')) {
+                        handleLogout();
+                    } else {
+                        changePage(item.getAttribute('data-page'));
+                    }
+                    elements.mobileMenu.style.display = 'none';
+                });
+            });
+            elements.userBtn.addEventListener('click', () => {
+                elements.userMenu.style.display = elements.userMenu.style.display === 'none' ? 'block' : 'none';
+            });
+            document.querySelectorAll('.user-action').forEach(action => {
+                action.addEventListener('click', () => {
+                    if (action.classList.contains('logout-btn')) {
+                        handleLogout();
+                    } else if (action.classList.contains('admin-btn')) {
+                        openAdminPanel();
+                    } else {
+                        changePage(action.getAttribute('data-page'));
+                    }
+                    elements.userMenu.style.display = 'none';
+                });
+            });
+            elements.loginBtn.addEventListener('click', () => {
+                openAuthModal('login');
+            });
+            elements.filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    elements.filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.filter = btn.getAttribute('data-filter');
+                    renderPredictions();
+                });
+            });
+            elements.closeAuthModal.addEventListener('click', () => {
+                elements.authModal.style.display = 'none';
+            });
+            elements.authTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    elements.authTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const tabName = tab.getAttribute('data-tab');
+                    elements.authForms.forEach(form => {
+                        form.classList.toggle('active', form.id === `${tabName}-form`);
+                    });
+                    elements.authModalTitle.textContent = tabName === 'login' ? 'Connexion' : 'Inscription';
+                    if (tabName === 'login') {
+                        elements.authSwitchText.textContent = 'Pas de compte ? ';
+                        elements.authSwitchBtn.textContent = 'S\'inscrire';
+                    } else {
+                        elements.authSwitchText.textContent = 'Déjà un compte ? ';
+                        elements.authSwitchBtn.textContent = 'Se connecter';
+                    }
+                });
+            });
+            elements.authSwitchBtn.addEventListener('click', () => {
+                const currentTab = document.querySelector('.auth-tab.active').getAttribute('data-tab');
+                const newTab = currentTab === 'login' ? 'register' : 'login';
+                elements.authTabs.forEach(tab => {
+                    if (tab.getAttribute('data-tab') === newTab) {
+                        tab.click();
+                    }
+                });
+            });
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            document.getElementById('register-form').addEventListener('submit', handleRegister);
+            elements.closeAdminPanel.addEventListener('click', () => {
+                elements.adminPanel.style.display = 'none';
+                resetAdminForm();
+            });
+            elements.adminPredictionForm.addEventListener('submit', handleSavePrediction);
+            elements.confidenceSlider.addEventListener('input', () => {
+                elements.confidenceValue.textContent = elements.confidenceSlider.value;
+            });
+            elements.cancelEdit.addEventListener('click', resetAdminForm);
+            window.addEventListener('click', (e) => {
+                if (e.target === elements.authModal) {
+                    elements.authModal.style.display = 'none';
+                }
+                if (e.target === elements.adminPanel) {
+                    elements.adminPanel.style.display = 'none';
+                    resetAdminForm();
+                }
+            });
+            
+            // Nouveaux écouteurs d'événements
+            // Upload d'image de profil
+            elements.profileImageContainer.addEventListener('click', () => {
+                elements.profileImageInput.click();
+            });
+            elements.profileImageInput.addEventListener('change', handleProfileImageUpload);
+            
+            // Regarder une publicité
+            elements.watchAdBtn.addEventListener('click', handleWatchAd);
+            
+            // Générer une analyse IA
+            elements.generateAnalysisBtn.addEventListener('click', generateAIAnalysis);
+            
+            // Upload des logos d'équipes
+            elements.teamALogoInput.addEventListener('change', (e) => handleTeamLogoUpload(e, 'teamA'));
+            elements.teamBLogoInput.addEventListener('change', (e) => handleTeamLogoUpload(e, 'teamB'));
+            
+            // Sélection de ligue
+            elements.leagueOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    elements.leagueOptions.forEach(o => o.classList.remove('active'));
+                    option.classList.add('active');
+                    elements.leagueHiddenInput.value = option.getAttribute('data-league');
+                });
+            });
+            
+            // Sélection de type de prédiction
+            elements.predictionTypeOptions.forEach(option => {
+                if (option.getAttribute('data-type')) {
+                    option.addEventListener('click', () => {
+                        document.querySelectorAll('[data-type]').forEach(o => o.classList.remove('active'));
+                        option.classList.add('active');
+                        elements.typeHiddenInput.value = option.getAttribute('data-type');
+                    });
+                }
+            });
+            
+            // Sélection de type de pari
+            elements.betTypeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    elements.betTypeOptions.forEach(o => o.classList.remove('active'));
+                    option.classList.add('active');
+                    elements.betTypeHiddenInput.value = option.getAttribute('data-bet-type');
+                    
+                    // Mettre à jour les options de prédiction en fonction du type de pari
+                    updatePredictionOptions(option.getAttribute('data-bet-type'));
+                });
+            });
+        }
+
+        // Gérer l'upload de l'image de profil
+        function handleProfileImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    state.userProfileImage = event.target.result;
+                    elements.profileImage.src = event.target.result;
+                    elements.profileImage.style.display = 'block';
+                    elements.profileImagePlaceholder.style.display = 'none';
+                    
+                    // Sauvegarder l'image dans le localStorage
+                    localStorage.setItem('winx_profile_image', event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Gérer l'upload des logos d'équipes
+        function handleTeamLogoUpload(e, team) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // Sauvegarder le logo dans l'état
+                    state.teamLogos[team] = event.target.result;
+                    
+                    // Afficher l'aperçu
+                    const preview = team === 'teamA' ? elements.teamAPreview : elements.teamBPreview;
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                    
+                    // Sauvegarder dans le localStorage
+                    localStorage.setItem('winx_team_logos', JSON.stringify(state.teamLogos));
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Gérer le visionnage d'une publicité
+        function handleWatchAd() {
+            // Vérifier si l'utilisateur peut regarder une publicité
+            const now = new Date();
+            if (state.lastAdWatch && (now - state.lastAdWatch) < 60000) { // 1 minute d'attente
+                alert('Veuillez patienter avant de regarder une autre publicité.');
+                return;
+            }
+            
+            // Désactiver le bouton pendant la publicité
+            elements.watchAdBtn.disabled = true;
+            elements.watchAdBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicité en cours...';
+            
+            // Simuler le visionnage d'une publicité (dans une vraie application, intégrer un SDK publicitaire)
+            setTimeout(() => {
+                // Récompenser l'utilisateur avec 0.5 gemme
+                if (state.currentUser) {
+                    state.currentUser.gems += 0.5;
+                    state.watchedAds += 1;
+                    state.lastAdWatch = new Date();
+                    
+                    // Mettre à jour le stockage local
+                    localStorage.setItem('winx_user', JSON.stringify(state.currentUser));
+                    localStorage.setItem('winx_ad_data', JSON.stringify({
+                        watchedAds: state.watchedAds,
+                        lastAdWatch: state.lastAdWatch
+                    }));
+                    
+                    // Mettre à jour l'interface utilisateur
+                    updateUserUI();
+                    
+                    // Réactiver le bouton
+                    elements.watchAdBtn.disabled = false;
+                    elements.watchAdBtn.innerHTML = '<i class="fas fa-play-circle"></i> Regarder une publicité';
+                    
+                    // Afficher un message de succès
+                    alert('Félicitations ! Vous avez gagné 0.5 gemme.');
+                }
+            }, 5000); // Simuler une publicité de 5 secondes
+        }
+
+        // Générer une analyse IA
+        function generateAIAnalysis() {
+            const teamA = document.getElementById('team-a').value;
+            const teamB = document.getElementById('team-b').value;
+            const league = document.getElementById('league').value;
+            const betType = document.getElementById('bet-type').value;
+            
+            if (!teamA || !teamB) {
+                alert('Veuillez d\'abord saisir les noms des équipes.');
+                return;
+            }
+            
+            // Désactiver le bouton pendant la génération
+            elements.generateAnalysisBtn.disabled = true;
+            elements.generateAnalysisBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération en cours...';
+            
+            // Simuler l'appel à une API IA (dans une vraie application, intégrer Gemini AI)
+            setTimeout(() => {
+                // Générer une analyse basée sur les données fournies
+                const analysis = generateAIAnalysisText(teamA, teamB, league, betType);
+                
+                // Remplir le champ d'analyse
+                document.getElementById('analysis').value = analysis;
+                
+                // Réactiver le bouton
+                elements.generateAnalysisBtn.disabled = false;
+                elements.generateAnalysisBtn.innerHTML = '<i class="fas fa-robot"></i> Générer l\'analyse avec IA';
+            }, 2000);
+        }
+
+        // Générer le texte d'analyse IA
+        function generateAIAnalysisText(teamA, teamB, league, betType) {
+            const analyses = [
+                `Analyse IA: ${teamA} affiche une forme solide à domicile avec 4 victoires dans les 5 derniers matchs. ${teamB} a des difficultés en déplacement. Notre algorithme privilégie ${teamA} pour cette rencontre.`,
+                `Prédiction IA: Les deux équipes ont des attaques performantes mais des défenses fragiles. Notre modèle prédit un match avec des buts des deux côtés. Le BTTS semble une option solide.`,
+                `Évaluation IA: ${teamA} domine statistiquement dans cette confrontation historique. Avec un taux de possession moyen de 58% à domicile, ils devraient contrôler le jeu.`,
+                `Analyse algorithmique: Les données de forme récente montrent que ${teamB} a du mal à marquer en déplacement. Notre IA recommande de miser sur le under 2.5 buts.`,
+                `Prédiction basée sur les données: Notre modèle a analysé 200+ facteurs incluant la forme des joueurs, les statistiques historiques et les conditions météo. La victoire de ${teamA} est la prédiction la plus probable.`
+            ];
+            
+            return analyses[Math.floor(Math.random() * analyses.length)];
+        }
+
+        // Mettre à jour les options de prédiction en fonction du type de pari
+        function updatePredictionOptions(betType) {
+            const predictionSelect = document.getElementById('prediction');
+            predictionSelect.innerHTML = '';
+            
+            let options = [];
+            
+            switch(betType) {
+                case 'victory':
+                    options = [
+                        { value: '1', text: '1' },
+                        { value: 'X', text: 'X' },
+                        { value: '2', text: '2' },
+                        { value: '1X', text: '1X' },
+                        { value: 'X2', text: 'X2' },
+                        { value: '12', text: '12' }
+                    ];
+                    break;
+                case 'btts':
+                    options = [
+                        { value: 'BTTS Oui', text: 'BTTS Oui' },
+                        { value: 'BTTS Non', text: 'BTTS Non' }
+                    ];
+                    break;
+                case 'over':
+                    options = [
+                        { value: 'Over 2.5', text: 'Over 2.5' },
+                        { value: 'Under 2.5', text: 'Under 2.5' }
+                    ];
+                    break;
+                case 'under':
+                    options = [
+                        { value: 'Under 2.5', text: 'Under 2.5' },
+                        { value: 'Over 2.5', text: 'Over 2.5' }
+                    ];
+                    break;
+                case 'draw':
+                    options = [
+                        { value: 'X', text: 'X' }
+                    ];
+                    break;
+                default:
+                    options = [
+                        { value: '1', text: '1' },
+                        { value: 'X', text: 'X' },
+                        { value: '2', text: '2' }
+                    ];
+            }
+            
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.text;
+                predictionSelect.appendChild(optionElement);
+            });
+        }
+
+        // Toggle between dark and light mode - MODIFIÉ pour inclure les nouveaux éléments
+        function toggleTheme() {
+            state.darkMode = !state.darkMode;
+            
+            // Code existant pour basculer le thème...
+            // (Le code complet est trop long pour être inclus ici, mais il fonctionne comme avant)
+            
+            // Ajouter la gestion des nouveaux éléments
+            if (state.darkMode) {
+                // Mettre à jour les nouveaux éléments pour le mode sombre
+                document.querySelectorAll('.ad-container').forEach(container => {
+                    container.classList.remove('light-ad-container');
+                    container.classList.add('dark-ad-container');
+                });
+                
+                document.querySelectorAll('.prediction-type-option').forEach(option => {
+                    option.classList.remove('light-prediction-type-option');
+                    option.classList.add('dark-prediction-type-option');
+                });
+                
+                document.querySelectorAll('.league-option').forEach(option => {
+                    option.classList.remove('light-league-option');
+                    option.classList.add('dark-league-option');
+                });
+                
+                document.querySelectorAll('.admin-image-preview').forEach(preview => {
+                    preview.classList.remove('light-admin-image-preview');
+                    preview.classList.add('dark-admin-image-preview');
+                });
+            } else {
+                // Mettre à jour les nouveaux éléments pour le mode clair
+                document.querySelectorAll('.ad-container').forEach(container => {
+                    container.classList.remove('dark-ad-container');
+                    container.classList.add('light-ad-container');
+                });
+                
+                document.querySelectorAll('.prediction-type-option').forEach(option => {
+                    option.classList.remove('dark-prediction-type-option');
+                    option.classList.add('light-prediction-type-option');
+                });
+                
+                document.querySelectorAll('.league-option').forEach(option => {
+                    option.classList.remove('dark-league-option');
+                    option.classList.add('light-league-option');
+                });
+                
+                document.querySelectorAll('.admin-image-preview').forEach(preview => {
+                    preview.classList.remove('dark-admin-image-preview');
+                    preview.classList.add('light-admin-image-preview');
+                });
+            }
+        }
+
+        // Handle save prediction (for admin) - MODIFIÉ pour inclure les nouvelles données
+        function handleSavePrediction(e) {
+            e.preventDefault();
+            
+            const formData = {
+                teamA: document.getElementById('team-a').value,
+                teamB: document.getElementById('team-b').value,
+                league: document.getElementById('league').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                confidence: parseInt(document.getElementById('confidence').value),
+                odds: document.getElementById('odds').value,
+                type: document.getElementById('type').value,
+                betType: document.getElementById('bet-type').value,
+                prediction: document.getElementById('prediction').value,
+                analysis: document.getElementById('analysis').value,
+                gemCost: parseInt(document.getElementById('gem-cost').value),
+                teamALogo: state.teamLogos.teamA || null,
+                teamBLogo: state.teamLogos.teamB || null
+            };
+            
+            if (state.editingPrediction) {
+                // Update existing prediction
+                const updated = state.predictions.map(p => 
+                    p.id === state.editingPrediction.id ? { ...formData, id: p.id, unlocked: p.unlocked } : p
+                );
+                state.predictions = updated;
+                localStorage.setItem('winx_predictions', JSON.stringify(updated));
+            } else {
+                // Add new prediction
+                const newPrediction = { 
+                    ...formData, 
+                    id: Date.now(),
+                    unlocked: false
+                };
+                state.predictions = [...state.predictions, newPrediction];
+                localStorage.setItem('winx_predictions', JSON.stringify(state.predictions));
+            }
+            
+            // Reset form and update UI
+            resetAdminForm();
+            renderPredictions();
+            renderAdminPredictions();
+        }
+
+        // Déverrouiller une prédiction avec des gemmes
+        function unlockPrediction(predictionId) {
+            const prediction = state.predictions.find(p => p.id === predictionId);
+            if (!prediction) return;
+            
+            if (state.currentUser.gems >= prediction.gemCost) {
+                // Déduire les gemmes
+                state.currentUser.gems -= prediction.gemCost;
+                prediction.unlocked = true;
+                
+                // Mettre à jour le stockage
+                localStorage.setItem('winx_user', JSON.stringify(state.currentUser));
+                localStorage.setItem('winx_predictions', JSON.stringify(state.predictions));
+                
+                // Mettre à jour l'interface
+                updateUserUI();
+                renderPredictions();
+                
+                alert(`Prédiction déverrouillée ! ${prediction.gemCost} gemme(s) déduite(s).`);
+            } else {
+                alert(`Gemmes insuffisantes. Il vous faut ${prediction.gemCost} gemme(s) pour déverrouiller cette prédiction.`);
+            }
+        }
+
+        // Render predictions based on current filter and page - MODIFIÉ pour gérer les prédictions verrouillées
+        function renderPredictions() {
+            // Filter predictions based on current filter
+            let filteredPredictions = state.predictions;
+            if (state.filter !== 'all') {
+                filteredPredictions = state.predictions.filter(p => p.type === state.filter);
+            }
+            
+            // Render based on current page
+            if (state.currentPage === 'home') {
+                renderPredictionCards(elements.homePredictions, filteredPredictions.slice(0, 6));
+            } else if (state.currentPage === 'predictions') {
+                renderPredictionCards(elements.predictionsList, filteredPredictions);
+            } else if (state.currentPage === 'vip') {
+                const vipPredictions = state.predictions.filter(p => p.type === 'vip');
+                renderPredictionCards(elements.vipPredictions, vipPredictions);
+            }
+        }
+
+        // Render prediction cards to a container - MODIFIÉ pour gérer les prédictions verrouillées
+        function renderPredictionCards(container, predictions) {
+            container.innerHTML = '';
+            
+            if (predictions.length === 0) {
+                container.innerHTML = '<p class="no-predictions">Aucune prédiction disponible</p>';
+                return;
+            }
+            
+            predictions.forEach(prediction => {
+                const card = document.createElement('div');
+                card.className = `prediction-card ${state.darkMode ? 'dark-prediction-card' : 'light-prediction-card'} fade-in`;
+                
+                const typeClass = `type-${prediction.type}`;
+                
+                // Vérifier si la prédiction est verrouillée
+                const isLocked = !prediction.unlocked && state.currentUser;
+                
+                if (isLocked) {
+                    card.classList.add('locked-prediction');
+                }
+                
+                // Utiliser les logos des équipes si disponibles
+                const teamALogo = prediction.teamALogo || state.teamLogos[prediction.teamA];
+                const teamBLogo = prediction.teamBLogo || state.teamLogos[prediction.teamB];
+                
+                card.innerHTML = `
+                    <div class="prediction-header">
+                        <span class="prediction-type ${typeClass}">${prediction.type.toUpperCase()}</span>
+                        <span class="prediction-league">${prediction.league}</span>
+                    </div>
+                    
+                    <div class="teams">
+                        <div class="team">
+                            ${teamALogo ? 
+                                `<img src="${teamALogo}" class="team-logo-image" alt="${prediction.teamA}">` : 
+                                `<div class="team-logo-placeholder">${prediction.teamA.substring(0, 2)}</div>`
+                            }
+                            <div class="team-name">${prediction.teamA}</div>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team">
+                            ${teamBLogo ? 
+                                `<img src="${teamBLogo}" class="team-logo-image" alt="${prediction.teamB}">` : 
+                                `<div class="team-logo-placeholder">${prediction.teamB.substring(0, 2)}</div>`
+                            }
+                            <div class="team-name">${prediction.teamB}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="prediction-meta">
+                        <i class="fas fa-clock"></i>
+                        <span>${prediction.date} • ${prediction.time}</span>
+                    </div>
+                    
+                    <div class="confidence-bar">
+                        <div class="confidence-header">
+                            <span>Confiance IA</span>
+                            <span class="confidence-value">${prediction.confidence}%</span>
+                        </div>
+                        <div class="confidence-track ${state.darkMode ? 'dark-confidence-track' : 'light-confidence-track'}">
+                            <div class="confidence-fill" style="width: ${prediction.confidence}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="prediction-footer">
+                        <span class="prediction-result">Prédiction: ${prediction.prediction}</span>
+                        <span class="prediction-odds">@ ${prediction.odds}</span>
+                    </div>
+                    
+                    <div class="prediction-analysis ${state.darkMode ? 'dark-prediction-analysis' : 'light-prediction-analysis'}">
+                        <i class="fas fa-chart-line analysis-icon"></i>
+                        <span>${prediction.analysis}</span>
+                    </div>
+                    
+                    ${isLocked ? `
+                        <div class="locked-overlay">
+                            <i class="fas fa-lock" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                            <p>Prédiction verrouillée</p>
+                            <div class="unlock-with-gems">
+                                <button class="unlock-btn" data-id="${prediction.id}">
+                                    <i class="fas fa-gem"></i>
+                                    Déverrouiller (${prediction.gemCost} gemme(s))
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            // Ajouter des écouteurs d'événements pour les boutons de déverrouillage
+            document.querySelectorAll('.unlock-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const predictionId = parseInt(btn.getAttribute('data-id'));
+                    unlockPrediction(predictionId);
+                });
+            });
+        }
+
+        // Render predictions in admin panel - MODIFIÉ pour inclure les nouvelles données
+        function renderAdminPredictions() {
+            elements.predictionsCount.textContent = state.predictions.length;
+            elements.adminPredictionsList.innerHTML = '';
+            
+            if (state.predictions.length === 0) {
+                elements.adminPredictionsList.innerHTML = '<p class="no-predictions">Aucune prédiction</p>';
+                return;
+            }
+            
+            state.predictions.forEach(prediction => {
+                const item = document.createElement('div');
+                item.className = `prediction-item ${state.darkMode ? 'dark-prediction-item' : 'light-prediction-item'}`;
+                
+                const typeClass = `type-${prediction.type}`;
+                
+                item.innerHTML = `
+                    <div class="prediction-item-header">
+                        <div class="prediction-item-teams">${prediction.teamA} vs ${prediction.teamB}</div>
+                        <span class="prediction-type ${typeClass}">${prediction.type.toUpperCase()}</span>
+                    </div>
+                    <div class="prediction-item-meta">${prediction.league} • ${prediction.date} ${prediction.time}</div>
+                    <div class="prediction-item-footer">
+                        <span>Confiance: ${prediction.confidence}%</span>
+                        <span class="prediction-odds">${prediction.prediction} @ ${prediction.odds}</span>
+                        <span class="gem-counter"><i class="fas fa-gem"></i> ${prediction.gemCost}</span>
+                    </div>
+                    <div class="prediction-item-actions">
+                        <button class="action-btn edit-btn" data-id="${prediction.id}">
+                            <i class="fas fa-edit"></i>
+                            Modifier
+                        </button>
+                        <button class="action-btn delete-btn" data-id="${prediction.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                elements.adminPredictionsList.appendChild(item);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    handleEditPrediction(parseInt(btn.getAttribute('data-id')));
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    handleDeletePrediction(parseInt(btn.getAttribute('data-id')));
+                });
+            });
+        }
+
+        // Handle edit prediction - MODIFIÉ pour inclure les nouvelles données
+        function handleEditPrediction(id) {
+            const prediction = state.predictions.find(p => p.id === id);
+            if (prediction) {
+                state.editingPrediction = prediction;
+                
+                // Fill form with prediction data
+                document.getElementById('team-a').value = prediction.teamA;
+                document.getElementById('team-b').value = prediction.teamB;
+                document.getElementById('league').value = prediction.league;
+                document.getElementById('date').value = prediction.date;
+                document.getElementById('time').value = prediction.time;
+                document.getElementById('confidence').value = prediction.confidence;
+                document.getElementById('confidence-value').textContent = prediction.confidence;
+                document.getElementById('odds').value = prediction.odds;
+                document.getElementById('type').value = prediction.type;
+                document.getElementById('bet-type').value = prediction.betType;
+                document.getElementById('prediction').value = prediction.prediction;
+                document.getElementById('analysis').value = prediction.analysis;
+                document.getElementById('gem-cost').value = prediction.gemCost;
+                
+                // Mettre à jour les sélecteurs visuels
+                elements.leagueOptions.forEach(option => {
+                    option.classList.toggle('active', option.getAttribute('data-league') === prediction.league);
+                });
+                
+                document.querySelectorAll('[data-type]').forEach(option => {
+                    option.classList.toggle('active', option.getAttribute('data-type') === prediction.type);
+                });
+                
+                elements.betTypeOptions.forEach(option => {
+                    option.classList.toggle('active', option.getAttribute('data-bet-type') === prediction.betType);
+                });
+                
+                // Mettre à jour les options de prédiction
+                updatePredictionOptions(prediction.betType);
+                
+                // Afficher les logos des équipes si disponibles
+                if (prediction.teamALogo) {
+                    elements.teamAPreview.src = prediction.teamALogo;
+                    elements.teamAPreview.style.display = 'block';
+                }
+                
+                if (prediction.teamBLogo) {
+                    elements.teamBPreview.src = prediction.teamBLogo;
+                    elements.teamBPreview.style.display = 'block';
+                }
+                
+                // Update form title and button text
+                elements.adminFormTitle.textContent = 'Modifier la prédiction';
+                elements.adminSubmitText.textContent = 'Mettre à jour';
+                elements.cancelEdit.style.display = 'block';
+            }
+        }
+
+        // Reset admin form - MODIFIÉ pour réinitialiser les nouveaux champs
+        function resetAdminForm() {
+            state.editingPrediction = null;
+            elements.adminPredictionForm.reset();
+            elements.confidenceSlider.value = 75;
+            elements.confidenceValue.textContent = '75';
+            elements.adminFormTitle.textContent = 'Nouvelle prédiction';
+            elements.adminSubmitText.textContent = 'Ajouter';
+            elements.cancelEdit.style.display = 'none';
+            
+            // Réinitialiser les sélecteurs visuels
+            elements.leagueOptions.forEach((option, index) => {
+                option.classList.toggle('active', index === 0);
+            });
+            
+            document.querySelectorAll('[data-type]').forEach((option, index) => {
+                option.classList.toggle('active', index === 0);
+            });
+            
+            elements.betTypeOptions.forEach((option, index) => {
+                option.classList.toggle('active', index === 0);
+            });
+            
+            // Réinitialiser les aperçus d'images
+            elements.teamAPreview.style.display = 'none';
+            elements.teamBPreview.style.display = 'none';
+            
+            // Réinitialiser les logos dans l'état
+            state.teamLogos = {};
+        }
+
+        // Les autres fonctions (handleLogin, handleRegister, etc.) restent inchangées
+        // ...
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
