@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinX - Prédictions Football IA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #8B5CF6;
+            --primary-dark: #7C3AED;
+            --secondary: #3B82F6;
+            --accent: #F59E0B;
+            --success: #10B981;
+            --danger: #EF4444;
+            --dark-bg: #0F172A;
+            --dark-card: #1E293B;
+            --dark-text: #F1F5F9;
+            --dark-text-secondary: #94A3B8;
+            --light-bg: #F8FAFC;
+            --light-card: #FFFFFF;
+            --light-text: #1E293B;
+            --light-text-secondary: #64748B;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .dark-mode {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #4C1D95 50%, var(--dark-bg) 100%);
+            color: var(--dark-text);
+        }
+
+        .light-mode {
+            background: linear-gradient(135deg, var(--light-bg) 0%, #E0E7FF 50%, var(--light-bg) 100%);
+            color: var(--light-text);
+        }
+
+        .app-container {
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header amélioré */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid;
+            box-shadow: var(--shadow);
+        }
+
+        .dark-header {
+            background: rgba(30, 41, 59, 0.95);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .light-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+
+        .logo-text h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        /* Navigation améliorée */
+        .nav-desktop {
+            display: none;
+            gap: 0.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .nav-desktop {
+                display: flex;
+            }
+        }
+
+        .nav-item {
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dark-nav-item {
+            color: var(--dark-text-secondary);
+        }
+
+        .dark-nav-item:hover, .dark-nav-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .light-nav-item {
+            color: var(--light-text-secondary);
+        }
+
+        .light-nav-item:hover, .light-nav-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .gems-counter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent), #FBBF24);
+            color: #1E293B;
+            box-shadow: var(--shadow);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .theme-toggle, .user-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .dark-theme-toggle, .dark-user-btn {
+            background: var(--dark-card);
+            color: var(--dark-text);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-theme-toggle, .light-user-btn {
+            background: var(--light-card);
+            color: var(--light-text);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .user-btn {
+            overflow: hidden;
+        }
+
+        .user-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .login-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 20px -5px rgba(139, 92, 246, 0.4);
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 100%;
+            right: 1.5rem;
+            margin-top: 0.5rem;
+            width: 280px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        .dark-user-menu {
+            background: var(--dark-card);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .light-user-menu {
+            background: var(--light-card);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .user-header {
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .user-avatar-large {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+            border: 2px solid white;
+        }
+
+        .user-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .user-details h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-details p {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .user-stats {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .user-actions {
+            padding: 0.75rem;
+        }
+
+        .user-action {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .dark-user-action {
+            color: var(--dark-text);
+        }
+
+        .dark-user-action:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .light-user-action {
+            color: var(--light-text);
+        }
+
+        .light-user-action:hover {
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .logout-btn {
+            color: var(--danger);
+        }
+
+        /* Mobile Menu amélioré */
+        .mobile-menu-btn {
+            display: block;
+        }
+
+        @media (min-width: 1024px) {
+            .mobile-menu-btn {
+                display: none;
+            }
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-menu-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid;
+        }
+
+        .dark-mobile-menu-header {
+            background: var(--dark-card);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .light-mobile-menu-header {
+            background: var(--light-card);
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+
+        .mobile-nav {
+            flex: 1;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .mobile-nav-item {
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .dark-mobile-nav-item {
+            color: var(--dark-text);
+        }
+
+        .dark-mobile-nav-item:hover, .dark-mobile-nav-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .light-mobile-nav-item {
+            color: var(--light-text);
+        }
+
+        .light-mobile-nav-item:hover, .light-mobile-nav-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        /* Sections de prédictions améliorées */
+        .predictions-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .unique-predictions {
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        .unique-predictions-container {
+            display: flex;
+            gap: 1rem;
+            min-width: min-content;
+        }
+
+        .combo-predictions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Bouton Télécharger amélioré */
+        .download-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 20px -5px rgba(139, 92, 246, 0.4);
+        }
+
+        .download-btn:disabled {
+            background: var(--dark-text-secondary);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Modal Vidéo */
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .video-container {
+            background: var(--dark-card);
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .video-reward {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        /* Autres styles restent similaires mais améliorés */
+        /* ... (le reste du CSS précédent avec améliorations) ... */
+
+        /* Scrollbar personnalisée */
+        ::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .dark-mode ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.5);
+            border-radius: 4px;
+        }
+
+        .light-mode ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 4px;
+        }
+
+        .dark-mode ::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.7);
+        }
+
+        .light-mode ::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="app-container">
+        <!-- Header amélioré -->
+        <header class="dark-header">
+            <div class="header-content">
+                <div class="logo">
+                    <button class="mobile-menu-btn dark-theme-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="logo-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>WinX</h1>
+                        <p>SmartPredict AI</p>
+                    </div>
+                </div>
+
+                <nav class="nav-desktop">
+                    <div class="nav-item dark-nav-item active" data-page="home">
+                        <i class="fas fa-home"></i>
+                        Accueil
+                    </div>
+                    <div class="nav-item dark-nav-item" data-page="predictions">
+                        <i class="fas fa-chart-line"></i>
+                        Prédictions
+                    </div>
+                    <div class="nav-item dark-nav-item" data-page="vip">
+                        <i class="fas fa-crown"></i>
+                        VIP
+                    </div>
+                    <div class="nav-item dark-nav-item" data-page="stats">
+                        <i class="fas fa-chart-bar"></i>
+                        Statistiques
+                    </div>
+                    <div class="gems-counter">
+                        <i class="fas fa-gem"></i>
+                        <span id="gems-count">1</span>
+                    </div>
+                </nav>
+
+                <div class="header-actions">
+                    <button class="theme-toggle dark-theme-toggle">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                    
+                    <div class="user-section">
+                        <button class="user-btn dark-user-btn">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </button>
+                        
+                        <div class="user-menu dark-user-menu" style="display: none;">
+                            <div class="user-header">
+                                <div class="user-info">
+                                    <div class="user-avatar-large">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="user-details">
+                                        <h4 id="user-name">Invité</h4>
+                                        <p id="user-email">Non connecté</p>
+                                    </div>
+                                </div>
+                                <div class="user-stats">
+                                    <i class="fas fa-gem"></i>
+                                    <span id="user-gems">1 Gemme</span>
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="user-action dark-user-action" data-page="account">
+                                    <i class="fas fa-user-cog"></i>
+                                    <span>Mon compte</span>
+                                </button>
+                                <button class="user-action dark-user-action" data-page="subscription">
+                                    <i class="fas fa-crown"></i>
+                                    <span>Abonnement</span>
+                                </button>
+                                <button class="user-action dark-user-action admin-btn">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Admin Panel</span>
+                                </button>
+                                <button class="user-action dark-user-action logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Déconnexion</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="login-btn">Connexion</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Menu amélioré -->
+        <div class="mobile-menu" style="display: none;">
+            <div class="mobile-menu-header dark-mobile-menu-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>WinX</h1>
+                        <p>SmartPredict AI</p>
+                    </div>
+                </div>
+                <button class="close-mobile-menu dark-theme-toggle">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mobile-nav">
+                <div class="mobile-nav-item dark-mobile-nav-item active" data-page="home">
+                    <i class="fas fa-home"></i>
+                    Accueil
+                </div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="predictions">
+                    <i class="fas fa-chart-line"></i>
+                    Prédictions
+                </div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="vip">
+                    <i class="fas fa-crown"></i>
+                    VIP
+                </div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="stats">
+                    <i class="fas fa-chart-bar"></i>
+                    Statistiques
+                </div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="account">
+                    <i class="fas fa-user-cog"></i>
+                    Mon compte
+                </div>
+                <div class="mobile-nav-item dark-mobile-nav-item" data-page="subscription">
+                    <i class="fas fa-crown"></i>
+                    Abonnement
+                </div>
+                <div class="mobile-nav-item dark-mobile-nav-item admin-btn">
+                    <i class="fas fa-shield-alt"></i>
+                    Admin Panel
+                </div>
+                <div class="gems-counter" style="margin: 1rem 0;">
+                    <i class="fas fa-gem"></i>
+                    <span id="mobile-gems-count">1 Gemme</span>
+                </div>
+                <div class="mobile-nav-item dark-mobile-nav-item logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Déconnexion
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Home Page avec nouvelles sections -->
+            <section id="home-page" class="page active">
+                <div class="hero dark-hero fade-in">
+                    <h2>Prédictions Football IA</h2>
+                    <p>Algorithme avancé analysant 200+ facteurs pour des prédictions ultra-précises</p>
+                    
+                    <div class="stats">
+                        <div class="stat-card dark-stat-card">
+                            <div class="stat-icon" style="color: #10B981;">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-value">94.5%</div>
+                            <div class="stat-label">Précision</div>
+                        </div>
+                        <div class="stat-card dark-stat-card">
+                            <div class="stat-icon" style="color: #3B82F6;">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="stat-value">15K+</div>
+                            <div class="stat-label">Utilisateurs</div>
+                        </div>
+                        <div class="stat-card dark-stat-card">
+                            <div class="stat-icon" style="color: #F59E0B;">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="stat-value">+22%</div>
+                            <div class="stat-label">ROI Moyen</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Prédictions Uniques (défilement horizontal) -->
+                <div class="predictions-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Pronostics Uniques du Jour</h3>
+                        <span class="section-badge">Nouveau</span>
+                    </div>
+                    <div class="unique-predictions">
+                        <div class="unique-predictions-container" id="unique-predictions">
+                            <!-- Les prédictions uniques seront chargées ici -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Prédictions Combo (liste verticale) -->
+                <div class="predictions-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Combos Gagnants</h3>
+                        <span class="section-badge">Populaire</span>
+                    </div>
+                    <div class="combo-predictions" id="combo-predictions">
+                        <!-- Les prédictions combo seront chargées ici -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Autres pages (predictions, vip, stats, account) -->
+            <!-- ... (le reste du HTML précédent) ... -->
+        </main>
+
+        <!-- Auth Modal amélioré -->
+        <div class="modal-overlay" id="auth-modal" style="display: none;">
+            <div class="modal dark-modal">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="auth-modal-title">Connexion</h3>
+                    <button class="close-btn" id="close-auth-modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab dark-auth-tab active" data-tab="login">Connexion</button>
+                    <button class="auth-tab dark-auth-tab" data-tab="register">Inscription</button>
+                </div>
+
+                <form class="auth-form active" id="login-form">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input dark-form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mot de passe</label>
+                        <input type="password" class="form-input dark-form-input" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Se connecter</button>
+                </form>
+
+                <form class="auth-form" id="register-form">
+                    <div class="form-group">
+                        <label class="form-label">Photo de profil (URL)</label>
+                        <input type="url" class="form-input dark-form-input" id="avatar-url" placeholder="https://example.com/avatar.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nom complet</label>
+                        <input type="text" class="form-input dark-form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input dark-form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mot de passe</label>
+                        <input type="password" class="form-input dark-form-input" required>
+                    </div>
+                    <button type="submit" class="submit-btn">S'inscrire</button>
+                </form>
+
+                <div class="auth-switch">
+                    <span id="auth-switch-text">Pas de compte ? </span>
+                    <button class="auth-switch-btn" id="auth-switch-btn">S'inscrire</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Vidéo pour gagner des gemmes -->
+        <div class="video-modal" id="video-modal" style="display: none;">
+            <div class="video-container">
+                <div class="video-placeholder">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <h3>Regardez la vidéo pour gagner des gemmes</h3>
+                <p class="video-reward">+0.1 💎 par vidéo</p>
+                <div class="video-controls">
+                    <button class="primary-btn" id="play-video">
+                        <i class="fas fa-play"></i>
+                        Lire la vidéo
+                    </button>
+                    <button class="secondary-btn dark-secondary-btn" id="close-video">
+                        Fermer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel (séparé dans un autre fichier en production) -->
+        <div class="admin-overlay" id="admin-panel" style="display: none;">
+            <!-- ... (contenu du panel admin) ... -->
+        </div>
+    </div>
+
+    <script>
+        // Application State amélioré
+        const state = {
+            darkMode: true,
+            currentPage: 'home',
+            currentUser: null,
+            predictions: {
+                unique: [],
+                combo: []
+            },
+            filter: 'all',
+            editingPrediction: null,
+            userGems: 1,
+            downloadedPredictions: new Set()
+        };
+
+        // DOM Elements
+        const elements = {
+            // Navigation améliorée
+            gemsCounter: document.getElementById('gems-count'),
+            mobileGemsCounter: document.getElementById('mobile-gems-count'),
+            userGems: document.getElementById('user-gems'),
+            userName: document.getElementById('user-name'),
+            userEmail: document.getElementById('user-email'),
+            userAvatar: document.querySelector('.user-avatar'),
+            userAvatarLarge: document.querySelector('.user-avatar-large'),
+            
+            // Nouvelles sections
+            uniquePredictions: document.getElementById('unique-predictions'),
+            comboPredictions: document.getElementById('combo-predictions'),
+            
+            // Modal vidéo
+            videoModal: document.getElementById('video-modal'),
+            playVideo: document.getElementById('play-video'),
+            closeVideo: document.getElementById('close-video')
+        };
+
+        // Initialisation améliorée
+        function init() {
+            loadUser();
+            loadPredictions();
+            setupEventListeners();
+            renderPredictions();
+            updateGemsUI();
+        }
+
+        // Charger les prédictions
+        function loadPredictions() {
+            const savedPredictions = localStorage.getItem('winx_predictions');
+            if (savedPredictions) {
+                const allPredictions = JSON.parse(savedPredictions);
+                state.predictions.unique = allPredictions.filter(p => p.type === 'unique');
+                state.predictions.combo = allPredictions.filter(p => p.type === 'combo');
+            } else {
+                // Générer des prédictions initiales
+                state.predictions.unique = generateUniquePredictions();
+                state.predictions.combo = generateComboPredictions();
+                const allPredictions = [...state.predictions.unique, ...state.predictions.combo];
+                localStorage.setItem('winx_predictions', JSON.stringify(allPredictions));
+            }
+        }
+
+        // Générer des prédictions uniques
+        function generateUniquePredictions() {
+            const leagues = ['Ligue 1', 'Premier League', 'La Liga', 'Serie A', 'Bundesliga'];
+            const teams = ['PSG', 'OM', 'OL', 'Monaco', 'Real Madrid', 'Barcelona', 'Bayern', 'Dortmund', 'Juventus', 'Inter', 'Man City', 'Liverpool', 'Chelsea', 'Arsenal'];
+            const betTypes = ['Victoire', 'Total Buts', 'BTTS', 'Double Chance', 'Handicap'];
+            
+            return Array.from({ length: 8 }, (_, i) => {
+                const teamA = teams[Math.floor(Math.random() * teams.length)];
+                let teamB = teams[Math.floor(Math.random() * teams.length)];
+                while (teamB === teamA) teamB = teams[Math.floor(Math.random() * teams.length)];
+                
+                return {
+                    id: Date.now() + i,
+                    teamA,
+                    teamB,
+                    league: leagues[Math.floor(Math.random() * leagues.length)],
+                    date: new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    time: `${Math.floor(Math.random() * 12) + 10}:${['00', '30'][Math.floor(Math.random() * 2)]}`,
+                    confidence: Math.floor(Math.random() * 40) + 60,
+                    odds: (1.5 + Math.random() * 2).toFixed(2),
+                    type: 'unique',
+                    betType: betTypes[Math.floor(Math.random() * betTypes.length)],
+                    prediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)],
+                    analysis: 'Analyse IA basée sur les performances récentes, statistiques avancées et conditions de match.',
+                    requiresGem: true
+                };
+            });
+        }
+
+        // Générer des prédictions combo
+        function generateComboPredictions() {
+            return Array.from({ length: 4 }, (_, i) => {
+                return {
+                    id: Date.now() + i + 1000,
+                    matches: [
+                        { teams: 'PSG vs Monaco', prediction: '1', odds: '1.45' },
+                        { teams: 'Real Madrid vs Barcelone', prediction: '1X', odds: '1.30' },
+                        { teams: 'Bayern vs Dortmund', prediction: '2+', odds: '1.80' }
+                    ],
+                    confidence: Math.floor(Math.random() * 30) + 65,
+                    totalOdds: (3 + Math.random() * 2).toFixed(2),
+                    type: 'combo',
+                    analysis: 'Combo sécurisé avec forte probabilité de succès basée sur l\'analyse IA.',
+                    requiresGem: true
+                };
+            });
+        }
+
+        // Mise à jour de l'UI des gemmes
+        function updateGemsUI() {
+            elements.gemsCounter.textContent = state.userGems;
+            elements.mobileGemsCounter.textContent = `${state.userGems} Gemme${state.userGems > 1 ? 's' : ''}`;
+            elements.userGems.textContent = `${state.userGems} Gemme${state.userGems > 1 ? 's' : ''}`;
+        }
+
+        // Gestion du téléchargement des prédictions
+        function handleDownloadPrediction(predictionId, predictionType) {
+            if (!state.currentUser) {
+                openAuthModal('login');
+                return;
+            }
+
+            if (state.downloadedPredictions.has(predictionId)) {
+                alert('Vous avez déjà téléchargé cette prédiction !');
+                return;
+            }
+
+            if (state.userGems < 1) {
+                // Ouvrir le modal vidéo pour gagner des gemmes
+                elements.videoModal.style.display = 'flex';
+                return;
+            }
+
+            // Débiter une gemme
+            state.userGems -= 1;
+            state.downloadedPredictions.add(predictionId);
+            
+            // Sauvegarder l'état
+            if (state.currentUser) {
+                state.currentUser.gems = state.userGems;
+                localStorage.setItem('winx_user', JSON.stringify(state.currentUser));
+            }
+            localStorage.setItem('winx_downloaded', JSON.stringify(Array.from(state.downloadedPredictions)));
+            
+            // Mettre à jour l'UI
+            updateGemsUI();
+            
+            // Afficher la prédiction
+            showPredictionDetails(predictionId, predictionType);
+            
+            alert('Prédiction téléchargée avec succès ! -1 💎');
+        }
+
+        // Afficher les détails de la prédiction
+        function showPredictionDetails(predictionId, predictionType) {
+            let prediction;
+            if (predictionType === 'unique') {
+                prediction = state.predictions.unique.find(p => p.id === predictionId);
+            } else {
+                prediction = state.predictions.combo.find(p => p.id === predictionId);
+            }
+            
+            if (prediction) {
+                // Créer un modal avec les détails de la prédiction
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.style.display = 'flex';
+                modal.innerHTML = `
+                    <div class="modal ${state.darkMode ? 'dark-modal' : 'light-modal'}">
+                        <div class="modal-header">
+                            <h3>Détails de la Prédiction</h3>
+                            <button class="close-btn">&times;</button>
+                        </div>
+                        <div class="prediction-details">
+                            ${predictionType === 'unique' ? `
+                                <div class="match-info">
+                                    <h4>${prediction.teamA} vs ${prediction.teamB}</h4>
+                                    <p>${prediction.league} • ${prediction.date} ${prediction.time}</p>
+                                </div>
+                                <div class="prediction-info">
+                                    <p><strong>Type de pari:</strong> ${prediction.betType}</p>
+                                    <p><strong>Prédiction:</strong> ${prediction.prediction}</p>
+                                    <p><strong>Côte:</strong> ${prediction.odds}</p>
+                                    <p><strong>Confiance IA:</strong> ${prediction.confidence}%</p>
+                                </div>
+                            ` : `
+                                <div class="combo-info">
+                                    <h4>Combo à ${prediction.totalOdds}</h4>
+                                    ${prediction.matches.map(match => `
+                                        <div class="combo-match">
+                                            <p><strong>${match.teams}</strong></p>
+                                            <p>Prédiction: ${match.prediction} @ ${match.odds}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `}
+                            <div class="analysis">
+                                <h4>Analyse IA</h4>
+                                <p>${prediction.analysis}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Fermer le modal
+                modal.querySelector('.close-btn').addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+                
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                });
+            }
+        }
+
+        // Regarder une vidéo pour gagner des gemmes
+        function setupVideoReward() {
+            elements.playVideo.addEventListener('click', () => {
+                // Simuler la lecture d'une vidéo
+                elements.playVideo.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lecture...';
+                elements.playVideo.disabled = true;
+                
+                setTimeout(() => {
+                    // Récompense
+                    state.userGems += 0.1;
+                    updateGemsUI();
+                    
+                    // Mettre à jour l'utilisateur
+                    if (state.currentUser) {
+                        state.currentUser.gems = state.userGems;
+                        localStorage.setItem('winx_user', JSON.stringify(state.currentUser));
+                    }
+                    
+                    elements.videoModal.style.display = 'none';
+                    elements.playVideo.innerHTML = '<i class="fas fa-play"></i> Lire la vidéo';
+                    elements.playVideo.disabled = false;
+                    
+                    alert('+0.1 💎 - Vous pouvez maintenant télécharger une prédiction !');
+                }, 3000);
+            });
+            
+            elements.closeVideo.addEventListener('click', () => {
+                elements.videoModal.style.display = 'none';
+            });
+        }
+
+        // Rendu des prédictions amélioré
+        function renderPredictions() {
+            renderUniquePredictions();
+            renderComboPredictions();
+        }
+
+        function renderUniquePredictions() {
+            elements.uniquePredictions.innerHTML = '';
+            
+            state.predictions.unique.forEach(prediction => {
+                const isDownloaded = state.downloadedPredictions.has(prediction.id);
+                const canDownload = state.userGems >= 1 || isDownloaded;
+                
+                const card = document.createElement('div');
+                card.className = `prediction-card ${state.darkMode ? 'dark-prediction-card' : 'light-prediction-card'}`;
+                card.style.minWidth = '280px';
+                
+                card.innerHTML = `
+                    <div class="prediction-header">
+                        <span class="prediction-type type-unique">UNIQUE</span>
+                        <span class="prediction-league">${prediction.league}</span>
+                    </div>
+                    
+                    <div class="teams">
+                        <div class="team">
+                            <div class="team-logo">${prediction.teamA.substring(0, 2)}</div>
+                            <div class="team-name">${prediction.teamA}</div>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team">
+                            <div class="team-logo">${prediction.teamB.substring(0, 2)}</div>
+                            <div class="team-name">${prediction.teamB}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="prediction-meta">
+                        <i class="fas fa-clock"></i>
+                        <span>${prediction.date} • ${prediction.time}</span>
+                    </div>
+                    
+                    <div class="prediction-info">
+                        <p><strong>${prediction.betType}</strong></p>
+                        <p>Côte: <span class="odds">${prediction.odds}</span></p>
+                    </div>
+                    
+                    <div class="confidence-bar">
+                        <div class="confidence-header">
+                            <span>Confiance IA</span>
+                            <span class="confidence-value">${prediction.confidence}%</span>
+                        </div>
+                        <div class="confidence-track ${state.darkMode ? 'dark-confidence-track' : 'light-confidence-track'}">
+                            <div class="confidence-fill" style="width: ${prediction.confidence}%"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="download-btn ${isDownloaded ? 'downloaded' : ''}" 
+                            data-id="${prediction.id}" 
+                            data-type="unique"
+                            ${isDownloaded ? 'disabled' : !canDownload ? 'disabled' : ''}>
+                        <i class="fas ${isDownloaded ? 'fa-check' : 'fa-download'}"></i>
+                        ${isDownloaded ? 'Déjà téléchargé' : 'Télécharger -1 💎'}
+                    </button>
+                `;
+                
+                elements.uniquePredictions.appendChild(card);
+                
+                // Ajouter l'event listener
+                if (!isDownloaded && canDownload) {
+                    card.querySelector('.download-btn').addEventListener('click', () => {
+                        handleDownloadPrediction(prediction.id, 'unique');
+                    });
+                }
+            });
+        }
+
+        function renderComboPredictions() {
+            elements.comboPredictions.innerHTML = '';
+            
+            state.predictions.combo.forEach(prediction => {
+                const isDownloaded = state.downloadedPredictions.has(prediction.id);
+                const canDownload = state.userGems >= 1 || isDownloaded;
+                
+                const card = document.createElement('div');
+                card.className = `prediction-card ${state.darkMode ? 'dark-prediction-card' : 'light-prediction-card'}`;
+                
+                card.innerHTML = `
+                    <div class="prediction-header">
+                        <span class="prediction-type type-combo">COMBO</span>
+                        <span class="prediction-odds">Côte: ${prediction.totalOdds}</span>
+                    </div>
+                    
+                    <div class="combo-matches">
+                        ${prediction.matches.map(match => `
+                            <div class="combo-match">
+                                <div class="match-teams">${match.teams}</div>
+                                <div class="match-prediction">${match.prediction} @ ${match.odds}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="confidence-bar">
+                        <div class="confidence-header">
+                            <span>Confiance IA</span>
+                            <span class="confidence-value">${prediction.confidence}%</span>
+                        </div>
+                        <div class="confidence-track ${state.darkMode ? 'dark-confidence-track' : 'light-confidence-track'}">
+                            <div class="confidence-fill" style="width: ${prediction.confidence}%"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="download-btn ${isDownloaded ? 'downloaded' : ''}" 
+                            data-id="${prediction.id}" 
+                            data-type="combo"
+                            ${isDownloaded ? 'disabled' : !canDownload ? 'disabled' : ''}>
+                        <i class="fas ${isDownloaded ? 'fa-check' : 'fa-download'}"></i>
+                        ${isDownloaded ? 'Déjà téléchargé' : 'Télécharger -1 💎'}
+                    </button>
+                `;
+                
+                elements.comboPredictions.appendChild(card);
+                
+                // Ajouter l'event listener
+                if (!isDownloaded && canDownload) {
+                    card.querySelector('.download-btn').addEventListener('click', () => {
+                        handleDownloadPrediction(prediction.id, 'combo');
+                    });
+                }
+            });
+        }
+
+        // Setup des event listeners amélioré
+        function setupEventListeners() {
+            // ... (event listeners précédents) ...
+            
+            // Nouveaux event listeners pour la vidéo
+            setupVideoReward();
+            
+            // Charger les prédictions téléchargées
+            const savedDownloads = localStorage.getItem('winx_downloaded');
+            if (savedDownloads) {
+                state.downloadedPredictions = new Set(JSON.parse(savedDownloads));
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+  </html>
