@@ -1,193 +1,299 @@
+// scripts.js - Umuhinga AI (version stable sans AbortController)
 const container = document.querySelector(".container");
 const chatsContainer = document.querySelector(".chats-container");
 const promptForm = document.querySelector(".prompt-form");
 const promptInput = promptForm.querySelector(".prompt-input");
 const fileInput = promptForm.querySelector("#file-input");
-const fileUploadWrapper = promptForm.querySelector(".file-upload-wrapper");
+const fileUploadWrapper = document.querySelector(".file-upload-wrapper");
 const themeToggleBtn = document.querySelector("#theme-toggle-btn");
+const stopResponseBtn = document.querySelector("#stop-response-btn");
+const deleteChatsBtn = document.querySelector("#delete-chats-btn");
+const addFileBtn = document.querySelector("#add-file-btn");
+const cancelFileBtn = document.querySelector("#cancel-file-btn");
 
-// API Setup
-const API_KEY = "AIzaSyB0VDZHriOw_q-tya9JKQeZok559AOa-qs";
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+// TA NOUVELLE CLÉ API ICI (générée sur https://aistudio.google.com/apikey)
+const API_KEY = "AIzaSyAPP-FXg0YWC6W-E6wPBNWaaVgS3t4dU6I"; // ← REMPLACE PAR TA VRAIE NOUVELLE CLÉ
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
 
-let controller, typingInterval;
-const chatHistory = [];
-const userData = { message: "", file: {} };
+let currentFetchRequest = null; // Pour pouvoir annuler si besoin
+let typingInterval = null;
+let knowledgeBase = { categories: [] };
+let chatHistory = [];
 
-// Set initial theme from local storage
-const isLightTheme = localStorage.getItem("themeColor") === "light_mode";
-document.body.classList.toggle("light-theme", isLightTheme);
-themeToggleBtn.textContent = isLightTheme ? "dark_mode" : "light_mode";
-
-// Detect user language
+// Détection langue
 const userLanguage = navigator.language || 'en';
 const isFrench = userLanguage.startsWith('fr');
 const isEnglish = userLanguage.startsWith('en');
+const currentLang = isFrench ? 'fr' : (isEnglish ? 'en' : 'sw');
 
-// Amani Chat system prompt (multilingual)
-const AMANI_PROMPT = {
-  role: "user",
-  parts: [{
-    text: `You are Amani Chat, an African AI assistant created in Burundi (by Josué), (a 14-year-old Burundian student). Send a short message and reply in the same language as your users. The name "Amani" means "Peace" in Swahili. You are designed to: 1. Respond with sincerity and African wisdom 2. Promote African development (health, education, technology) 3. Teach African coding and share useful knowledge 4. Discuss the modern African way of life 5. Quote relevant African proverbs 6. Maintain a calm and positive attitude Your style: - You speak French, English, and any other African language - You write with emojis in a professional style - Friendly but professional - Use African quotes when relevant - Encourage African innovation - Respond in the user's language (mainly French, English, and all African languages) - Be concise but complete`
-  }]
-};
-
-chatHistory.push(AMANI_PROMPT);
-
-// Function to create message elements
-const createMessageElement = (content, ...classes) => {
-  const div = document.createElement("div");
-  div.classList.add("message", ...classes);
-  div.innerHTML = content;
-  return div;
-};
-
-// Scroll to the bottom of the container
-const scrollToBottom = () => container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
-
-// Simulate typing effect for bot responses
-const typingEffect = (text, textElement, botMsgDiv) => {
-  textElement.textContent = "";
-  const words = text.split(" ");
-  let wordIndex = 0;
-
-  typingInterval = setInterval(() => {
-    if (wordIndex < words.length) {
-      textElement.textContent += (wordIndex === 0 ? "" : " ") + words[wordIndex++];
-      scrollToBottom();
-    } else {
-      clearInterval(typingInterval);
-      botMsgDiv.classList.remove("loading");
-      document.body.classList.remove("bot-responding");
-    }
-  }, 40);
-};
-
-// Make the API call and generate the bot's response
-const generateResponse = async (botMsgDiv) => {
-  const textElement = botMsgDiv.querySelector(".message-text");
-  controller = new AbortController();
-
-  // Add user message and file data to the chat history
-  chatHistory.push({
-    role: "user",
-    parts: [{ text: userData.message }, ...(userData.file.data ? [{ inline_data: (({ fileName, isImage, ...rest }) => rest)(userData.file) }] : [])],
-  });
-
+// ------------------- 1. Chargement du JSON local -------------------
+async function loadKnowledgeBase() {
   try {
+    const response = await fetch('knowledge.json?t=' + Date.now());
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    knowledgeBase = await response.json();
+    if (!knowledgeBase.categories) knowledgeBase.categories = [];
+    console.log("✅ knowledge.json chargé", knowledgeBase);
+    buildSystemPrompt();
+  } catch (error) {
+    console.warn("⚠️ knowledge.json introuvable", error);
+    knowledgeBase = { categories: [] };
+    buildSystemPrompt();
+  }
+}
+
+// ------------------- 2. Construction du prompt système -------------------
+function buildSystemPrompt() {
+  let knowledgeText = "";
+  for (const category of knowledgeBase.categories) {
+    knowledgeText += `\n📁 ${category.name} :\n`;
+    for (const item of category.items) {
+      knowledgeText += `- ${item.nom}\n`;
+      knowledgeText += `  Mots-clés : ${item.mots_cles.join(', ')}\n`;
+      if (item.preparation) knowledgeText += `  Préparation : ${item.preparation}\n`;
+      if (item.posologie_adulte) knowledgeText += `  Posologie adulte : ${item.posologie_adulte}\n`;
+      if (item.posologie_enfant) knowledgeText += `  Posologie enfant : ${item.posologie_enfant}\n`;
+      if (item.contre_indications) knowledgeText += `  Contre-indications : ${item.contre_indications}\n`;
+      knowledgeText += "\n";
+    }
+  }
+  
+  const langInstruction = currentLang === 'fr' ? "en français" : (currentLang === 'en' ? "in English" : "en swahili");
+  
+  const systemPrompt = `Tu es Umuhinga, un assistant africain sage, chaleureux et bienveillant, créé par Josué au Burundi. Tu parles ${langInstruction}.
+
+CONNAISSANCES TRADITIONNELLES (utilise-les précisément si la question concerne ces sujets) :
+${knowledgeText || "Aucune connaissance spécifique pour l'instant."}
+
+RÈGLES :
+- Réponds dans la langue de l'utilisateur (${langInstruction}).
+- Si la question concerne un sujet présent dans les connaissances ci-dessus, utilise précisément ces informations.
+- Si la question est générale (code, conversation, etc.), réponds normalement mais reste dans le rôle d'un sage africain.
+- Sois utile, concis et chaleureux. Utilise des émojis.
+- Termine par : "🔔 Umuhinga – savoir traditionnel et moderne."`;
+  
+  // Réinitialiser l'historique avec le prompt système
+  chatHistory = [
+    { role: "user", parts: [{ text: systemPrompt }] },
+    { role: "model", parts: [{ text: "Je suis prêt à t'aider avec sagesse ! 🌿" }] }
+  ];
+}
+
+// ------------------- 3. Appel à Gemini -------------------
+async function generateGeminiResponse(userMessage, botMsgDiv) {
+  const textElement = botMsgDiv.querySelector(".message-text");
+  
+  // Ajouter le message utilisateur
+  chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+  
+  // Garder les 30 derniers messages max
+  const historyToSend = [chatHistory[0], ...chatHistory.slice(-30)];
+  
+  console.log("📤 Envoi à Gemini, historique:", historyToSend.length);
+  
+  try {
+    // Créer un nouveau controller pour cette requête
+    const controller = new AbortController();
+    currentFetchRequest = controller;
+    
+    // Timeout de 30 secondes
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: chatHistory }),
-      signal: controller.signal,
+      body: JSON.stringify({ contents: historyToSend }),
+      signal: controller.signal
     });
-
-    const data = await response.json();    
-    if (!response.ok) throw new Error(data.error.message);    
-
-    const responseText = data.candidates[0].content.parts[0].text.replace(/\*\*([^*]+)\*\*/g, "$1").trim();    
-    typingEffect(responseText, textElement, botMsgDiv);    
-
-    chatHistory.push({ role: "model", parts: [{ text: responseText }] });
-
+    
+    clearTimeout(timeoutId);
+    currentFetchRequest = null;
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Erreur API:", errorData);
+      throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log("📥 Réponse Gemini reçue");
+    
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!reply) throw new Error("Réponse vide");
+    
+    // Ajouter la réponse à l'historique
+    chatHistory.push({ role: "model", parts: [{ text: reply }] });
+    
+    typingEffect(reply, textElement, botMsgDiv);
+    
   } catch (error) {
-    textElement.textContent = error.name === "AbortError"
-      ? (isFrench ? "Génération de réponse arrêtée." : "Response generation stopped.")
-      : error.message;
+    console.error("❌ Gemini error:", error.message);
+    
+    let friendlyError = "";
+    if (error.name === "AbortError") {
+      friendlyError = currentLang === 'fr' ?
+        "⏹️ Réponse annulée ou trop longue à arriver." :
+        "⏹️ Response cancelled or timed out.";
+    } else if (error.message.includes("API key") || error.message.includes("suspended")) {
+      friendlyError = currentLang === 'fr' ?
+        "🔑 Clé API invalide ou suspendue. Contacte l'administrateur." :
+        "🔑 Invalid or suspended API key. Contact administrator.";
+    } else if (error.message.includes("Failed to fetch")) {
+      friendlyError = currentLang === 'fr' ?
+        "🌍 Connexion impossible. Vérifie que ton navigateur autorise les requêtes sécurisées (HTTPS). Essaie avec un serveur local comme Live Server." :
+        "🌍 Cannot connect. Check your browser allows secure requests. Try using Live Server.";
+    } else {
+      friendlyError = currentLang === 'fr' ?
+        "❌ Erreur: " + error.message :
+        "❌ Error: " + error.message;
+    }
+    
+    textElement.textContent = friendlyError;
     textElement.style.color = "#d62939";
     botMsgDiv.classList.remove("loading");
     document.body.classList.remove("bot-responding");
     scrollToBottom();
   } finally {
-    userData.file = {};
+    currentFetchRequest = null;
   }
-};
+}
 
-// Handle the form submission
-const handleFormSubmit = (e) => {
+// ------------------- 4. Effet de frappe -------------------
+function typingEffect(text, textElement, botMsgDiv) {
+  textElement.textContent = "";
+  const words = text.split(" ");
+  let index = 0;
+  if (typingInterval) clearInterval(typingInterval);
+  typingInterval = setInterval(() => {
+    if (index < words.length) {
+      textElement.textContent += (index === 0 ? "" : " ") + words[index];
+      index++;
+      scrollToBottom();
+    } else {
+      clearInterval(typingInterval);
+      typingInterval = null;
+      botMsgDiv.classList.remove("loading");
+      document.body.classList.remove("bot-responding");
+    }
+  }, 35);
+}
+
+// ------------------- 5. Utilitaires -------------------
+function createMessageElement(content, ...classes) {
+  const div = document.createElement("div");
+  div.classList.add("message", ...classes);
+  div.innerHTML = content;
+  return div;
+}
+
+function scrollToBottom() {
+  container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    return m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;');
+  });
+}
+
+// ------------------- 6. Gestion du formulaire -------------------
+const handleFormSubmit = async (e) => {
   e.preventDefault();
   const userMessage = promptInput.value.trim();
   if (!userMessage || document.body.classList.contains("bot-responding")) return;
-
-  userData.message = userMessage;
+  
   promptInput.value = "";
   document.body.classList.add("chats-active", "bot-responding");
   fileUploadWrapper.classList.remove("file-attached", "img-attached", "active");
-
-  const userMsgHTML = `<p class="message-text">${userData.message}</p>${userData.file.data ? (userData.file.isImage ? `<img src="data:${userData.file.mime_type};base64,${userData.file.data}" class="img-attachment" />` : `<p class="file-attachment"><span class="material-symbols-rounded">description</span>${userData.file.fileName}</p>`) : ""}`;
-
+  
+  // Afficher message utilisateur
+  const userMsgHTML = `<p class="message-text">${escapeHtml(userMessage)}</p>`;
   const userMsgDiv = createMessageElement(userMsgHTML, "user-message");
-  userMsgDiv.querySelector(".message-text").textContent = userData.message;
   chatsContainer.appendChild(userMsgDiv);
   scrollToBottom();
-
-  setTimeout(() => {
-    const greeting = isFrench ? "Amani à vous! Je réfléchis..." : (isEnglish ? "Peace to you! Thinking..." : "Amani!");
-    const botMsgHTML = `<img class="avatar" src="assets/avatar.png" /> <p class="message-text">${greeting}</p>`;
-    const botMsgDiv = createMessageElement(botMsgHTML, "bot-message", "loading");
-    chatsContainer.appendChild(botMsgDiv);
-    scrollToBottom();
-    generateResponse(botMsgDiv);
-  }, 600);
+  
+  // Afficher réflexion du bot
+  const thinking = currentLang === 'fr' ? "🌿 Umuhinga réfléchit..." : (currentLang === 'en' ? "🌿 Umuhinga is thinking..." : "🌿 Umuhinga anafikiri...");
+  const botMsgHTML = `<img class="avatar" src="assets/avatar.png" alt="Umuhinga" /> <p class="message-text">${thinking}</p>`;
+  const botMsgDiv = createMessageElement(botMsgHTML, "bot-message", "loading");
+  chatsContainer.appendChild(botMsgDiv);
+  scrollToBottom();
+  
+  await generateGeminiResponse(userMessage, botMsgDiv);
 };
 
-// Handle file input change
+// ------------------- 7. Arrêt de la réponse -------------------
+stopResponseBtn?.addEventListener("click", () => {
+  if (currentFetchRequest) {
+    currentFetchRequest.abort();
+    currentFetchRequest = null;
+  }
+  if (typingInterval) clearInterval(typingInterval);
+  const loadingMsg = chatsContainer.querySelector(".bot-message.loading");
+  if (loadingMsg) loadingMsg.classList.remove("loading");
+  document.body.classList.remove("bot-responding");
+});
+
+// ------------------- 8. Thème clair/sombre -------------------
+const isLightTheme = localStorage.getItem("themeColor") === "light_mode";
+document.body.classList.toggle("light-theme", isLightTheme);
+themeToggleBtn.textContent = isLightTheme ? "dark_mode" : "light_mode";
+
+themeToggleBtn.addEventListener("click", () => {
+  const isLight = document.body.classList.toggle("light-theme");
+  localStorage.setItem("themeColor", isLight ? "light_mode" : "dark_mode");
+  themeToggleBtn.textContent = isLight ? "dark_mode" : "light_mode";
+});
+
+// ------------------- 9. Supprimer l'historique -------------------
+deleteChatsBtn?.addEventListener("click", () => {
+  chatsContainer.innerHTML = "";
+  document.body.classList.remove("chats-active", "bot-responding");
+  buildSystemPrompt(); // Réinitialise l'historique
+  if (typingInterval) clearInterval(typingInterval);
+  if (currentFetchRequest) currentFetchRequest.abort();
+});
+
+// ------------------- 10. Suggestions -------------------
+document.querySelectorAll(".suggestions-item").forEach((sugg) => {
+  sugg.addEventListener("click", () => {
+    promptInput.value = sugg.querySelector(".text").textContent;
+    handleFormSubmit(new Event("submit"));
+  });
+});
+
+// ------------------- 11. Gestion fichiers -------------------
+addFileBtn?.addEventListener("click", () => fileInput.click());
+
 fileInput.addEventListener("change", () => {
   const file = fileInput.files[0];
   if (!file) return;
-
   const isImage = file.type.startsWith("image/");
   const reader = new FileReader();
   reader.readAsDataURL(file);
-
   reader.onload = (e) => {
     fileInput.value = "";
     const base64String = e.target.result.split(",")[1];
     fileUploadWrapper.querySelector(".file-preview").src = e.target.result;
     fileUploadWrapper.classList.add("active", isImage ? "img-attached" : "file-attached");
-
-    userData.file = { fileName: file.name, data: base64String, mime_type: file.type, isImage };
   };
 });
 
-// Event listeners
-document.querySelector("#cancel-file-btn").addEventListener("click", () => {
-  userData.file = {};
+cancelFileBtn?.addEventListener("click", () => {
   fileUploadWrapper.classList.remove("file-attached", "img-attached", "active");
 });
 
-document.querySelector("#stop-response-btn").addEventListener("click", () => {
-  controller?.abort();
-  userData.file = {};
-  clearInterval(typingInterval);
-  chatsContainer.querySelector(".bot-message.loading")?.classList.remove("loading");
-  document.body.classList.remove("bot-responding");
-});
-
-themeToggleBtn.addEventListener("click", () => {
-  const isLightTheme = document.body.classList.toggle("light-theme");
-  localStorage.setItem("themeColor", isLightTheme ? "light_mode" : "dark_mode");
-  themeToggleBtn.textContent = isLightTheme ? "dark_mode" : "light_mode";
-});
-
-document.querySelector("#delete-chats-btn").addEventListener("click", () => {
-  chatHistory.length = 1; // Keep only the system prompt
-  chatsContainer.innerHTML = "";
-  document.body.classList.remove("chats-active", "bot-responding");
-});
-
-document.querySelectorAll(".suggestions-item").forEach((suggestion) => {
-  suggestion.addEventListener("click", () => {
-    promptInput.value = suggestion.querySelector(".text").textContent;
-    promptForm.dispatchEvent(new Event("submit"));
-  });
-});
-
+// ------------------- 12. Cacher contrôles -------------------
 document.addEventListener("click", ({ target }) => {
   const wrapper = document.querySelector(".prompt-wrapper");
-  const shouldHide = target.classList.contains("prompt-input") || (wrapper.classList.contains("hide-controls") && (target.id === "add-file-btn" || target.id === "stop-response-btn"));
-  wrapper.classList.toggle("hide-controls", shouldHide);
+  if (wrapper && target.classList?.contains("prompt-input")) {
+    wrapper.classList.add("hide-controls");
+  } else if (wrapper && !target.classList?.contains("prompt-input")) {
+    wrapper.classList.remove("hide-controls");
+  }
 });
 
+// ------------------- Démarrage -------------------
 promptForm.addEventListener("submit", handleFormSubmit);
-promptForm.querySelector("#add-file-btn").addEventListener("click", () => fileInput.click());
+loadKnowledgeBase();
