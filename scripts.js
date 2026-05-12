@@ -1,4 +1,4 @@
-// scripts.js - Umuhinga AI (version finale avec fichiers et knowledge)
+// scripts.js - Umuhinga AI (version complète avec images et knowledge)
 const container = document.querySelector(".container");
 const chatsContainer = document.querySelector(".chats-container");
 const promptForm = document.querySelector(".prompt-form");
@@ -13,14 +13,13 @@ const cancelFileBtn = document.querySelector("#cancel-file-btn");
 
 // Configuration Gemini
 const API_KEY = "AIzaSyAy33WTpswQMn9C7vDsQeOTHC8tpCoCdcg";
-const MODEL = "gemini-flash-lite-latest"; // Modèle multimodal fiable
+const MODEL = "gemini-2.0-flash";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
-let currentAbortController = null;
 let typingInterval = null;
 let knowledgeBase = { categories: [] };
 let conversationHistory = [];
-let currentFile = null; // Stocker le fichier uploadé
+let currentFile = null;
 
 // Détection langue
 const userLanguage = navigator.language || 'en';
@@ -31,14 +30,15 @@ const currentLang = isFrench ? 'fr' : (isEnglish ? 'en' : 'sw');
 // ------------------- 1. Chargement du JSON local -------------------
 async function loadKnowledgeBase() {
   try {
+    console.log("📂 Chargement de knowledge.json...");
     const response = await fetch('knowledge.json?t=' + Date.now());
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     knowledgeBase = await response.json();
     if (!knowledgeBase.categories) knowledgeBase.categories = [];
-    console.log("✅ knowledge.json chargé", knowledgeBase);
+    console.log("✅ knowledge.json chargé:", knowledgeBase.categories.length, "catégories");
     initConversation();
   } catch (error) {
-    console.warn("⚠️ knowledge.json introuvable");
+    console.warn("⚠️ knowledge.json introuvable, utilisation d'une base vide");
     knowledgeBase = { categories: [] };
     initConversation();
   }
@@ -46,7 +46,6 @@ async function loadKnowledgeBase() {
 
 // ------------------- 2. Initialisation avec les connaissances -------------------
 function initConversation() {
-  // Construction du texte de connaissances
   let knowledgeText = "";
   for (const category of knowledgeBase.categories) {
     knowledgeText += `\n📁 ${category.name} :\n`;
@@ -65,18 +64,16 @@ function initConversation() {
   
   const systemPrompt = `Tu es Umuhinga, un assistant africain sage, chaleureux et bienveillant, créé par Josué au Burundi. Tu parles ${langInstruction}.
 
-CONNAISSANCES TRADITIONNELLES À UTILISER ABSOLUMENT :
+CONNAISSANCES TRADITIONNELLES À UTILISER IMPÉRATIVEMENT :
 ${knowledgeText || "Aucune connaissance spécifique pour l'instant."}
 
 RÈGLES IMPORTANTES :
-- Tu DOIS utiliser les connaissances ci-dessus quand la question concerne un sujet présent.
-- Réponds dans la langue de l'utilisateur (${langInstruction}).
-- Si l'utilisateur envoie une image, analyse-la et réponds en fonction.
-- Pour les questions générales (code, conversation), réponds normalement.
-- Sois utile, concis et chaleureux.
-- Termine par : "🔔 Umuhinga – savoir traditionnel et moderne."`;
+1. Tu DOIS utiliser les connaissances ci-dessus pour répondre aux questions sur la santé, les plantes, les remèdes traditionnels.
+2. Quand l'utilisateur envoie une image, analyse-la attentivement et réponds en fonction.
+3. Réponds dans la langue de l'utilisateur (${langInstruction}).
+4. Sois utile, concis et chaleureux. Utilise des émojis.
+5. Termine par : "🔔 Umuhinga – savoir traditionnel et moderne."`;
   
-  // Réinitialiser l'historique avec le prompt système
   conversationHistory = [
     { role: "user", parts: [{ text: systemPrompt }] },
     { role: "model", parts: [{ text: "Je suis prêt à t'aider avec sagesse ! 🌿" }] }
@@ -84,37 +81,37 @@ RÈGLES IMPORTANTES :
   console.log("✅ Conversation initialisée");
 }
 
-// ------------------- 3. Appel API Gemini avec gestion fichiers -------------------
+// ------------------- 3. Appel API Gemini avec support images -------------------
 async function generateGeminiResponse(userMessage, botMsgDiv, attachedFile = null) {
   const textElement = botMsgDiv.querySelector(".message-text");
   
-  // Construire les parties du message (texte + éventuel fichier)
+  // Construire les parties du message (texte + image éventuelle)
   const messageParts = [];
   
   // Ajouter le texte
-  messageParts.push({ text: userMessage });
+  if (userMessage && userMessage.trim()) {
+    messageParts.push({ text: userMessage });
+  }
   
-  // Ajouter un fichier si présent
-  if (attachedFile && attachedFile.data) {
-    if (attachedFile.isImage) {
-      messageParts.push({
-        inlineData: {
-          mimeType: attachedFile.mime_type,
-          data: attachedFile.data
-        }
-      });
-    } else {
-      // Pour les fichiers non-image, on ajoute le nom et le contenu textuel
-      messageParts.push({ text: `[Fichier joint: ${attachedFile.fileName}]` });
-    }
+  // Ajouter l'image si présente (format correct pour Gemini)
+  if (attachedFile && attachedFile.data && attachedFile.isImage) {
+    messageParts.push({
+      inlineData: {
+        mimeType: attachedFile.mime_type,
+        data: attachedFile.data
+      }
+    });
+    console.log("🖼️ Image jointe:", attachedFile.fileName, attachedFile.mime_type);
+  } else if (attachedFile && !attachedFile.isImage) {
+    messageParts.push({ text: `[Fichier joint: ${attachedFile.fileName}]` });
   }
   
   // Ajouter le message utilisateur à l'historique
   conversationHistory.push({ role: "user", parts: messageParts });
   
-  // Garder les 20 derniers messages max
+  // Limiter la taille de l'historique
   if (conversationHistory.length > 20) {
-    conversationHistory = [conversationHistory[0], ...conversationHistory.slice(-19)];
+    conversationHistory = [conversationHistory[0], ...conversationHistory.slice(-18)];
   }
   
   const payload = {
@@ -125,20 +122,14 @@ async function generateGeminiResponse(userMessage, botMsgDiv, attachedFile = nul
     }
   };
   
-  console.log("📤 Envoi à Gemini - Messages:", conversationHistory.length);
+  console.log("📤 Envoi à Gemini - Messages:", conversationHistory.length, "| Image:", !!attachedFile?.isImage);
   
   try {
-    currentAbortController = new AbortController();
-    const timeoutId = setTimeout(() => currentAbortController.abort(), 45000);
-    
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: currentAbortController.signal
+      body: JSON.stringify(payload)
     });
-    
-    clearTimeout(timeoutId);
     
     if (!response.ok) {
       const errorData = await response.json();
@@ -157,18 +148,20 @@ async function generateGeminiResponse(userMessage, botMsgDiv, attachedFile = nul
     
   } catch (error) {
     console.error("❌ Erreur:", error.message);
-    let friendlyError = "";
     
+    let friendlyError = "";
     if (error.message.includes("quota")) {
       friendlyError = currentLang === 'fr'
-        ? "📊 Quota dépassé pour aujourd'hui. Réessaie demain."
-        : "📊 Quota exceeded. Try again tomorrow.";
+        ? "📊 Quota API atteint pour aujourd'hui. Réessaie demain."
+        : "📊 API quota reached. Try again tomorrow.";
     } else if (error.message.includes("API key")) {
-      friendlyError = "🔑 Clé API invalide. Vérifie ta clé sur AI Studio.";
+      friendlyError = currentLang === 'fr'
+        ? "🔑 Clé API invalide. Génére une nouvelle clé sur https://aistudio.google.com/apikey"
+        : "🔑 Invalid API key.";
     } else {
       friendlyError = currentLang === 'fr'
-        ? `❌ Erreur: ${error.message.substring(0, 100)}`
-        : `❌ Error: ${error.message.substring(0, 100)}`;
+        ? `❌ Erreur: ${error.message.substring(0, 150)}`
+        : `❌ Error: ${error.message.substring(0, 150)}`;
     }
     
     textElement.textContent = friendlyError;
@@ -176,8 +169,6 @@ async function generateGeminiResponse(userMessage, botMsgDiv, attachedFile = nul
     botMsgDiv.classList.remove("loading");
     document.body.classList.remove("bot-responding");
     scrollToBottom();
-  } finally {
-    currentAbortController = null;
   }
 }
 
@@ -215,25 +206,31 @@ function scrollToBottom() {
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/[&<>]/g, m => (m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;')));
+  return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
 }
 
 // ------------------- 6. Gestion du formulaire -------------------
 const handleFormSubmit = async (e) => {
   e.preventDefault();
   const userMessage = promptInput.value.trim();
+  
+  // Vérifier qu'il y a soit du texte soit un fichier
   if ((!userMessage && !currentFile) || document.body.classList.contains("bot-responding")) return;
   
-  const messageToSend = userMessage || (currentLang === 'fr' ? "Analyse ce fichier" : "Analyze this file");
+  // Si pas de texte mais un fichier, message par défaut
+  const messageToSend = userMessage || (currentFile?.isImage 
+    ? (currentLang === 'fr' ? "Que vois-tu sur cette image ?" : "What do you see in this image?")
+    : (currentLang === 'fr' ? "Analyse ce fichier" : "Analyze this file"));
+  
   const fileToSend = currentFile;
   
-  // Réinitialiser l'input et le fichier
+  // Réinitialiser l'input
   promptInput.value = "";
   currentFile = null;
   fileUploadWrapper?.classList.remove("active", "img-attached", "file-attached");
   document.body.classList.add("chats-active", "bot-responding");
   
-  // Afficher le message utilisateur
+  // Afficher le message utilisateur avec l'image si présente
   let userMsgHTML = `<p class="message-text">${escapeHtml(messageToSend)}</p>`;
   if (fileToSend && fileToSend.isImage) {
     userMsgHTML += `<img src="data:${fileToSend.mime_type};base64,${fileToSend.data}" class="img-attachment" style="max-width: 200px; border-radius: 12px; margin-top: 8px;" />`;
@@ -246,7 +243,7 @@ const handleFormSubmit = async (e) => {
   scrollToBottom();
   
   // Afficher la réflexion du bot
-  const thinking = currentLang === 'fr' ? "🌿 Umuhinga réfléchit..." : (currentLang === 'en' ? "🌿 Umuhinga is thinking..." : "🌿 Umuhinga anafikiri...");
+  const thinking = currentLang === 'fr' ? "🌿 Umuhinga examine..." : (currentLang === 'en' ? "🌿 Umuhinga is analyzing..." : "🌿 Umuhinga anachambua...");
   const botMsgHTML = `<img class="avatar" src="assets/avatar.png" alt="Umuhinga" /> <p class="message-text">${thinking}</p>`;
   const botMsgDiv = createMessageElement(botMsgHTML, "bot-message", "loading");
   chatsContainer.appendChild(botMsgDiv);
@@ -255,7 +252,7 @@ const handleFormSubmit = async (e) => {
   await generateGeminiResponse(messageToSend, botMsgDiv, fileToSend);
 };
 
-// ------------------- 7. Gestion fichiers -------------------
+// ------------------- 7. Gestion fichiers (upload images) -------------------
 addFileBtn?.addEventListener("click", () => fileInput.click());
 
 fileInput?.addEventListener("change", () => {
@@ -263,26 +260,33 @@ fileInput?.addEventListener("change", () => {
   if (!file) return;
   
   const isImage = file.type.startsWith("image/");
+  
+  if (!isImage) {
+    alert(currentLang === 'fr' ? "Seules les images sont supportées pour l'analyse." : "Only images are supported for analysis.");
+    fileInput.value = "";
+    return;
+  }
+  
   const reader = new FileReader();
   
   reader.onload = (e) => {
     const base64String = e.target.result.split(",")[1];
     const previewUrl = e.target.result;
     
-    // Prévisualisation
     const previewImg = fileUploadWrapper?.querySelector(".file-preview");
     if (previewImg) previewImg.src = previewUrl;
     
-    fileUploadWrapper?.classList.add("active", isImage ? "img-attached" : "file-attached");
+    fileUploadWrapper?.classList.add("active", "img-attached");
     
     currentFile = {
       fileName: file.name,
       data: base64String,
       mime_type: file.type,
-      isImage: isImage
+      isImage: true
     };
     
-    fileInput.value = ""; // Reset pour permettre re-upload
+    console.log("📸 Image chargée:", file.name, file.type);
+    fileInput.value = "";
   };
   
   reader.readAsDataURL(file);
@@ -295,13 +299,12 @@ cancelFileBtn?.addEventListener("click", () => {
 
 // ------------------- 8. Événements -------------------
 stopResponseBtn?.addEventListener("click", () => {
-  if (currentAbortController) currentAbortController.abort();
   if (typingInterval) clearInterval(typingInterval);
   document.querySelector(".bot-message.loading")?.classList.remove("loading");
   document.body.classList.remove("bot-responding");
 });
 
-// Thème
+// Thème clair/sombre
 const isLightTheme = localStorage.getItem("themeColor") === "light_mode";
 document.body.classList.toggle("light-theme", isLightTheme);
 themeToggleBtn.textContent = isLightTheme ? "dark_mode" : "light_mode";
@@ -315,9 +318,8 @@ themeToggleBtn.addEventListener("click", () => {
 deleteChatsBtn?.addEventListener("click", () => {
   chatsContainer.innerHTML = "";
   document.body.classList.remove("chats-active", "bot-responding");
-  initConversation(); // Réinitialise l'historique avec les connaissances
+  initConversation();
   if (typingInterval) clearInterval(typingInterval);
-  if (currentAbortController) currentAbortController.abort();
 });
 
 // Suggestions
@@ -328,7 +330,7 @@ document.querySelectorAll(".suggestions-item").forEach(sugg => {
   });
 });
 
-// Cacher contrôles
+// Cacher les contrôles
 document.addEventListener("click", ({ target }) => {
   const wrapper = document.querySelector(".prompt-wrapper");
   if (wrapper && target.classList?.contains("prompt-input")) {
