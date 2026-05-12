@@ -1,0 +1,18 @@
+{
+  "categories": [
+    {
+      "name": "Plantes médicinales du Burundi",
+      "items": [
+        {
+          "id": 1,
+          "nom": "Igisura",
+          "mots_cles": ["diarrhee", "ventre", "enfant", "douleur"],
+          "preparation": "Gratter l'ecorce fraiche, faire bouillir dans 1 litre d'eau pendant 10 minutes.",
+          "posologie_adulte": "1 tasse le matin et le soir",
+          "posologie_enfant": "1/2 tasse apres 5 ans",
+          "contre_indications": "Deconseille aux femmes enceintes"
+        }
+      ]
+    }
+  ]
+}
