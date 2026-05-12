@@ -1,25 +1,28 @@
-// scripts.js - Umuhinga AI (version complète avec images et knowledge)
+// scripts.js - Sogo Chat AI (version ultra-économique)
 const container = document.querySelector(".container");
 const chatsContainer = document.querySelector(".chats-container");
 const promptForm = document.querySelector(".prompt-form");
 const promptInput = promptForm.querySelector(".prompt-input");
 const fileInput = document.querySelector("#file-input");
 const fileUploadWrapper = document.querySelector(".file-upload-wrapper");
-const themeToggleBtn = document.querySelector("#theme-toggle-btn");
 const stopResponseBtn = document.querySelector("#stop-response-btn");
 const deleteChatsBtn = document.querySelector("#delete-chats-btn");
 const addFileBtn = document.querySelector("#add-file-btn");
 const cancelFileBtn = document.querySelector("#cancel-file-btn");
+const audioRecordBtn = document.querySelector("#audio-record-btn");
 
-// Configuration Gemini
-const API_KEY = "AIzaSyAy33WTpswQMn9C7vDsQeOTHC8tpCoCdcg";
-const MODEL = "gemini-2.0-flash";
+// Configuration Gemini - Modèle économique
+const API_KEY = "AIzaSyAkxN8Qj4NymX1kJOl_dMZbbxc4sDB_-bk";
+const MODEL = "gemini-2.0-flash-lite"; // Modèle le plus économique en tokens
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
 let typingInterval = null;
 let knowledgeBase = { categories: [] };
 let conversationHistory = [];
 let currentFile = null;
+let lastRequestTime = 0;
+let requestQueue = [];
+let isProcessingQueue = false;
 
 // Détection langue
 const userLanguage = navigator.language || 'en';
@@ -27,172 +30,199 @@ const isFrench = userLanguage.startsWith('fr');
 const isEnglish = userLanguage.startsWith('en');
 const currentLang = isFrench ? 'fr' : (isEnglish ? 'en' : 'sw');
 
-// ------------------- 1. Chargement du JSON local -------------------
+// ----- Rate Limiting intelligent -----
+const MIN_DELAY_MS = 2000; // 2 secondes minimum entre requêtes
+const MAX_RETRIES = 3;
+
+async function waitForRateLimit() {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastRequestTime;
+  if (timeSinceLastRequest < MIN_DELAY_MS) {
+    await new Promise(resolve => setTimeout(resolve, MIN_DELAY_MS - timeSinceLastRequest));
+  }
+  lastRequestTime = Date.now();
+}
+
+async function queueRequest(fn) {
+  return new Promise((resolve, reject) => {
+    requestQueue.push({ fn, resolve, reject });
+    processQueue();
+  });
+}
+
+async function processQueue() {
+  if (isProcessingQueue || requestQueue.length === 0) return;
+  isProcessingQueue = true;
+  while (requestQueue.length > 0) {
+    await waitForRateLimit();
+    const { fn, resolve, reject } = requestQueue.shift();
+    try {
+      const result = await fn();
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  }
+  isProcessingQueue = false;
+}
+
+// ----- Audio : enregistrement -----
+let mediaRecorder = null;
+let audioChunks = [];
+let recordingStartTime = null;
+let recordingInterval = null;
+let isRecording = false;
+let audioModal = null;
+
+function ensureAudioModal() {
+  if (audioModal) return audioModal;
+  audioModal = document.getElementById('audio-modal');
+  if (!audioModal) {
+    audioModal = document.createElement('div');
+    audioModal.id = 'audio-modal';
+    audioModal.className = 'audio-modal';
+    audioModal.style.display = 'none';
+    audioModal.innerHTML = `
+      <div class="audio-modal-content">
+        <span class="material-symbols-rounded audio-icon">mic</span>
+        <div class="audio-timer">00:00</div>
+        <div class="audio-wave"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="audio-actions">
+          <button id="audio-send-btn" class="audio-btn send"><span class="material-symbols-rounded">send</span></button>
+          <button id="audio-cancel-btn" class="audio-btn cancel"><span class="material-symbols-rounded">close</span></button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(audioModal);
+  }
+  return audioModal;
+}
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const secs = (seconds % 60).toString().padStart(2, '0');
+  return `${mins}:${secs}`;
+}
+
+function startRecording() {
+  if (isRecording) return;
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => stream.getTracks().forEach(t => t.stop());
+      mediaRecorder.start(100);
+      isRecording = true;
+      recordingStartTime = Date.now();
+      if (recordingInterval) clearInterval(recordingInterval);
+      recordingInterval = setInterval(() => {
+        if (!isRecording) return;
+        const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+        const timerDiv = document.querySelector('.audio-timer');
+        if (timerDiv) timerDiv.innerText = formatTime(elapsed);
+      }, 1000);
+      ensureAudioModal().style.display = 'flex';
+    })
+    .catch(err => {
+      console.error(err);
+      alert(currentLang === 'fr' ? 'Microphone inaccessible' : 'Cannot access microphone');
+    });
+}
+
+function cancelRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.onstop = () => {};
+    mediaRecorder.stop();
+  }
+  isRecording = false;
+  clearInterval(recordingInterval);
+  if (audioModal) audioModal.style.display = 'none';
+}
+
+async function sendRecording() {
+  if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+  
+  mediaRecorder.onstop = async () => {
+    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+    
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Audio = reader.result.split(',')[1];
+      
+      currentFile = {
+        fileName: `audio_${Date.now()}.webm`,
+        data: base64Audio,
+        mime_type: 'audio/webm',
+        isImage: false,
+        isAudio: true,
+        duration: duration
+      };
+      
+      const userMessageText = currentLang === 'fr' ? 'Message vocal' : 'Voice message';
+      const userMsgHTML = `<p class="message-text">${userMessageText}</p><div class="audio-message"><span class="material-symbols-rounded">mic</span><span class="audio-duration">${formatTime(duration)}</span></div>`;
+      const userMsgDiv = createMessageElement(userMsgHTML, "user-message");
+      chatsContainer.appendChild(userMsgDiv);
+      scrollToBottom();
+      
+      const typingDiv = createMessageElement(`<div class="typing-indicator"><span></span><span></span><span></span></div>`, "bot-message", "typing-container");
+      chatsContainer.appendChild(typingDiv);
+      scrollToBottom();
+      document.body.classList.add("chats-active", "bot-responding");
+      
+      await generateGeminiResponse("Analyse cet audio", null, currentFile, typingDiv);
+      
+      currentFile = null;
+      URL.revokeObjectURL(audioUrl);
+    };
+    reader.readAsDataURL(audioBlob);
+    if (audioModal) audioModal.style.display = 'none';
+  };
+  mediaRecorder.stop();
+  isRecording = false;
+  clearInterval(recordingInterval);
+}
+
+// ----- Chargement knowledge.json (compressé) -----
 async function loadKnowledgeBase() {
   try {
-    console.log("📂 Chargement de knowledge.json...");
     const response = await fetch('knowledge.json?t=' + Date.now());
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) throw new Error();
     knowledgeBase = await response.json();
     if (!knowledgeBase.categories) knowledgeBase.categories = [];
-    console.log("✅ knowledge.json chargé:", knowledgeBase.categories.length, "catégories");
-    initConversation();
+    console.log("✅ Base chargée");
   } catch (error) {
-    console.warn("⚠️ knowledge.json introuvable, utilisation d'une base vide");
+    console.warn("Base introuvable");
     knowledgeBase = { categories: [] };
-    initConversation();
   }
+  initConversation();
 }
 
-// ------------------- 2. Initialisation avec les connaissances -------------------
+// Prompt système ultra-court pour économiser les tokens
 function initConversation() {
   let knowledgeText = "";
-  for (const category of knowledgeBase.categories) {
-    knowledgeText += `\n📁 ${category.name} :\n`;
-    for (const item of category.items) {
-      knowledgeText += `- ${item.nom}\n`;
-      knowledgeText += `  Mots-clés : ${item.mots_cles.join(', ')}\n`;
-      if (item.preparation) knowledgeText += `  Préparation : ${item.preparation}\n`;
-      if (item.posologie_adulte) knowledgeText += `  Posologie adulte : ${item.posologie_adulte}\n`;
-      if (item.posologie_enfant) knowledgeText += `  Posologie enfant : ${item.posologie_enfant}\n`;
-      if (item.contre_indications) knowledgeText += `  Contre-indications : ${item.contre_indications}\n`;
-      knowledgeText += "\n";
+  for (const cat of knowledgeBase.categories) {
+    for (const item of cat.items) {
+      knowledgeText += `${item.nom}: ${item.mots_cles.join(',')}|`;
     }
   }
   
-  const langInstruction = currentLang === 'fr' ? "en français" : (currentLang === 'en' ? "in English" : "en swahili");
-  
-  const systemPrompt = `Tu es Umuhinga, un assistant africain sage, chaleureux et bienveillant, créé par Josué au Burundi. Tu parles ${langInstruction}.
+  // Prompt système très concis (moins de 500 tokens)
+  const systemPrompt = `Sogo AI, assistant sage. Réponds en 2-3 phrases max.
 
-CONNAISSANCES TRADITIONNELLES À UTILISER IMPÉRATIVEMENT :
-${knowledgeText || "Aucune connaissance spécifique pour l'instant."}
+Savoir: ${knowledgeText.substring(0, 800)}
 
-RÈGLES IMPORTANTES :
-1. Tu DOIS utiliser les connaissances ci-dessus pour répondre aux questions sur la santé, les plantes, les remèdes traditionnels.
-2. Quand l'utilisateur envoie une image, analyse-la attentivement et réponds en fonction.
-3. Réponds dans la langue de l'utilisateur (${langInstruction}).
-4. Sois utile, concis et chaleureux. Utilise des émojis.
-5. Termine par : "🔔 Umuhinga – savoir traditionnel et moderne."`;
-  
+Règles: ${currentLang === 'fr' ? 'Parle français. Santé→utilise savoir. Termine par 🕊️' : (currentLang === 'en' ? 'Speak English. Health→use knowledge. End with 🕊️' : 'Sema Kiswahili. Afya→tumia maarifa. Malizia na 🕊️')}`;
+
   conversationHistory = [
     { role: "user", parts: [{ text: systemPrompt }] },
-    { role: "model", parts: [{ text: "Je suis prêt à t'aider avec sagesse ! 🌿" }] }
+    { role: "model", parts: [{ text: "🕊️" }] }
   ];
-  console.log("✅ Conversation initialisée");
 }
 
-// ------------------- 3. Appel API Gemini avec support images -------------------
-async function generateGeminiResponse(userMessage, botMsgDiv, attachedFile = null) {
-  const textElement = botMsgDiv.querySelector(".message-text");
-  
-  // Construire les parties du message (texte + image éventuelle)
-  const messageParts = [];
-  
-  // Ajouter le texte
-  if (userMessage && userMessage.trim()) {
-    messageParts.push({ text: userMessage });
-  }
-  
-  // Ajouter l'image si présente (format correct pour Gemini)
-  if (attachedFile && attachedFile.data && attachedFile.isImage) {
-    messageParts.push({
-      inlineData: {
-        mimeType: attachedFile.mime_type,
-        data: attachedFile.data
-      }
-    });
-    console.log("🖼️ Image jointe:", attachedFile.fileName, attachedFile.mime_type);
-  } else if (attachedFile && !attachedFile.isImage) {
-    messageParts.push({ text: `[Fichier joint: ${attachedFile.fileName}]` });
-  }
-  
-  // Ajouter le message utilisateur à l'historique
-  conversationHistory.push({ role: "user", parts: messageParts });
-  
-  // Limiter la taille de l'historique
-  if (conversationHistory.length > 20) {
-    conversationHistory = [conversationHistory[0], ...conversationHistory.slice(-18)];
-  }
-  
-  const payload = {
-    contents: conversationHistory,
-    generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 800,
-    }
-  };
-  
-  console.log("📤 Envoi à Gemini - Messages:", conversationHistory.length, "| Image:", !!attachedFile?.isImage);
-  
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("❌ API Error:", errorData);
-      throw new Error(errorData.error?.message || `HTTP ${response.status}`);
-    }
-    
-    const data = await response.json();
-    console.log("✅ Réponse reçue");
-    
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!reply) throw new Error("Réponse vide");
-    
-    conversationHistory.push({ role: "model", parts: [{ text: reply }] });
-    typingEffect(reply, textElement, botMsgDiv);
-    
-  } catch (error) {
-    console.error("❌ Erreur:", error.message);
-    
-    let friendlyError = "";
-    if (error.message.includes("quota")) {
-      friendlyError = currentLang === 'fr'
-        ? "📊 Quota API atteint pour aujourd'hui. Réessaie demain."
-        : "📊 API quota reached. Try again tomorrow.";
-    } else if (error.message.includes("API key")) {
-      friendlyError = currentLang === 'fr'
-        ? "🔑 Clé API invalide. Génére une nouvelle clé sur https://aistudio.google.com/apikey"
-        : "🔑 Invalid API key.";
-    } else {
-      friendlyError = currentLang === 'fr'
-        ? `❌ Erreur: ${error.message.substring(0, 150)}`
-        : `❌ Error: ${error.message.substring(0, 150)}`;
-    }
-    
-    textElement.textContent = friendlyError;
-    textElement.style.color = "#d62939";
-    botMsgDiv.classList.remove("loading");
-    document.body.classList.remove("bot-responding");
-    scrollToBottom();
-  }
-}
-
-// ------------------- 4. Effet de frappe -------------------
-function typingEffect(text, textElement, botMsgDiv) {
-  textElement.textContent = "";
-  const words = text.split(" ");
-  let index = 0;
-  if (typingInterval) clearInterval(typingInterval);
-  typingInterval = setInterval(() => {
-    if (index < words.length) {
-      textElement.textContent += (index === 0 ? "" : " ") + words[index];
-      index++;
-      scrollToBottom();
-    } else {
-      clearInterval(typingInterval);
-      typingInterval = null;
-      botMsgDiv.classList.remove("loading");
-      document.body.classList.remove("bot-responding");
-    }
-  }, 35);
-}
-
-// ------------------- 5. Utilitaires -------------------
+// ----- Fonctions UI -----
 function createMessageElement(content, ...classes) {
   const div = document.createElement("div");
   div.classList.add("message", ...classes);
@@ -209,87 +239,203 @@ function escapeHtml(str) {
   return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
 }
 
-// ------------------- 6. Gestion du formulaire -------------------
+// Message user avec bouton réessayer
+function createUserMessageElement(message, file = null, isImage = false, imageData = null, isAudio = false, audioDuration = null) {
+  const div = document.createElement("div");
+  div.classList.add("message", "user-message");
+  let inner = `<p class="message-text">${escapeHtml(message)}</p>`;
+  
+  if (isAudio && file) {
+    inner += `<div class="audio-message"><span class="material-symbols-rounded">mic</span><span class="audio-duration">${formatTime(audioDuration || 0)}</span></div>`;
+  } else if (file && isImage && imageData) {
+    inner += `<img src="${imageData}" class="img-attachment" style="max-width: 150px; border-radius: 12px; margin-top: 8px;" />`;
+  }
+  
+  inner += `<button class="retry-msg-btn" title="Retry"><span class="material-symbols-rounded">refresh</span></button>`;
+  div.innerHTML = inner;
+  div.querySelector('.retry-msg-btn').addEventListener('click', () => retryUserMessage(message, file, isImage, imageData, isAudio, audioDuration));
+  return div;
+}
+
+async function retryUserMessage(message, file, isImage, imageData, isAudio, audioDuration) {
+  if (document.body.classList.contains("bot-responding")) return;
+  
+  let fileToSend = null;
+  if (isAudio && file) {
+    fileToSend = { fileName: file, data: imageData, mime_type: 'audio/webm', isAudio: true, duration: audioDuration };
+  } else if (file && isImage && imageData) {
+    fileToSend = { fileName: file, data: imageData.split(',')[1], mime_type: 'image/jpeg', isImage: true };
+  }
+  
+  const typingDiv = createMessageElement(`<div class="typing-indicator"><span></span><span></span><span></span></div>`, "bot-message", "typing-container");
+  chatsContainer.appendChild(typingDiv);
+  scrollToBottom();
+  document.body.classList.add("bot-responding");
+  await generateGeminiResponse(message, null, fileToSend, typingDiv);
+}
+
+// Effet de frappe accéléré
+function typingEffect(text, textElement, onComplete) {
+  textElement.textContent = "";
+  const chars = text.split("");
+  let idx = 0;
+  if (typingInterval) clearInterval(typingInterval);
+  typingInterval = setInterval(() => {
+    if (idx < chars.length) {
+      textElement.textContent += chars[idx];
+      idx++;
+      scrollToBottom();
+    } else {
+      clearInterval(typingInterval);
+      typingInterval = null;
+      if (onComplete) onComplete();
+    }
+  }, 20); // Plus rapide
+}
+
+// Appel Gemini avec rate limiting et retry
+async function callGeminiWithRetry(payload, retryCount = 0) {
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    
+    if (response.status === 429) { // Rate limit
+      if (retryCount < MAX_RETRIES) {
+        const waitTime = (retryCount + 1) * 3000;
+        console.log(`Rate limit, attente ${waitTime}ms...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        return callGeminiWithRetry(payload, retryCount + 1);
+      }
+      throw new Error("Quota temporairement épuisé. Réessaie dans 1 minute.");
+    }
+    
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.error?.message || `HTTP ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function generateGeminiResponse(userMessage, botMsgDiv, attachedFile = null, typingIndicatorDiv = null) {
+  return queueRequest(async () => {
+    const messageParts = [];
+    if (userMessage && userMessage.trim()) messageParts.push({ text: userMessage.substring(0, 200) }); // Limite la longueur
+    
+    if (attachedFile?.isImage) {
+      messageParts.push({ inlineData: { mimeType: attachedFile.mime_type, data: attachedFile.data } });
+    } else if (attachedFile?.isAudio) {
+      messageParts.push({ text: `[Audio ${formatTime(attachedFile.duration || 0)}]` });
+    }
+    
+    conversationHistory.push({ role: "user", parts: messageParts });
+    
+    // Historique très limité (max 8 messages)
+    if (conversationHistory.length > 10) {
+      conversationHistory = [conversationHistory[0], ...conversationHistory.slice(-7)];
+    }
+    
+    const payload = {
+      contents: conversationHistory,
+      generationConfig: { temperature: 0.5, maxOutputTokens: 200 } // Réduit pour économie
+    };
+    
+    try {
+      const data = await callGeminiWithRetry(payload);
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!reply) throw new Error("Réponse vide");
+      
+      conversationHistory.push({ role: "model", parts: [{ text: reply }] });
+      
+      if (typingIndicatorDiv?.parentNode) typingIndicatorDiv.remove();
+      
+      const finalBotDiv = createMessageElement(`<img class="avatar" src="assets/avatar.png" alt="Sogo" /><p class="message-text"></p>`, "bot-message");
+      chatsContainer.appendChild(finalBotDiv);
+      scrollToBottom();
+      const textElement = finalBotDiv.querySelector(".message-text");
+      
+      return new Promise((resolve) => {
+        typingEffect(reply, textElement, () => {
+          document.body.classList.remove("bot-responding");
+          resolve();
+        });
+      });
+    } catch (error) {
+      console.error("Erreur:", error);
+      if (typingIndicatorDiv?.parentNode) typingIndicatorDiv.remove();
+      const errorMsg = currentLang === 'fr' ? `⚠️ ${error.message.substring(0, 80)}` : `⚠️ ${error.message.substring(0, 80)}`;
+      const errorDiv = createMessageElement(`<img class="avatar" src="assets/avatar.png" alt="Sogo" /><p class="message-text" style="color:#d62939;">${errorMsg}</p>`, "bot-message");
+      chatsContainer.appendChild(errorDiv);
+      scrollToBottom();
+      document.body.classList.remove("bot-responding");
+    }
+  });
+}
+
+// Gestion envoi formulaire
 const handleFormSubmit = async (e) => {
   e.preventDefault();
   const userMessage = promptInput.value.trim();
-  
-  // Vérifier qu'il y a soit du texte soit un fichier
   if ((!userMessage && !currentFile) || document.body.classList.contains("bot-responding")) return;
   
-  // Si pas de texte mais un fichier, message par défaut
-  const messageToSend = userMessage || (currentFile?.isImage 
-    ? (currentLang === 'fr' ? "Que vois-tu sur cette image ?" : "What do you see in this image?")
-    : (currentLang === 'fr' ? "Analyse ce fichier" : "Analyze this file"));
-  
+  const messageToSend = userMessage || (currentFile?.isImage ? "Image" : (currentFile?.isAudio ? "Audio" : "Message"));
   const fileToSend = currentFile;
+  const previewUrl = fileUploadWrapper?.querySelector(".file-preview")?.src;
+  const isAudio = fileToSend?.isAudio || false;
+  const audioDuration = fileToSend?.duration || 0;
   
-  // Réinitialiser l'input
   promptInput.value = "";
   currentFile = null;
   fileUploadWrapper?.classList.remove("active", "img-attached", "file-attached");
   document.body.classList.add("chats-active", "bot-responding");
   
-  // Afficher le message utilisateur avec l'image si présente
-  let userMsgHTML = `<p class="message-text">${escapeHtml(messageToSend)}</p>`;
-  if (fileToSend && fileToSend.isImage) {
-    userMsgHTML += `<img src="data:${fileToSend.mime_type};base64,${fileToSend.data}" class="img-attachment" style="max-width: 200px; border-radius: 12px; margin-top: 8px;" />`;
-  } else if (fileToSend) {
-    userMsgHTML += `<p class="file-attachment"><span class="material-symbols-rounded">description</span>${escapeHtml(fileToSend.fileName)}</p>`;
-  }
-  
-  const userMsgDiv = createMessageElement(userMsgHTML, "user-message");
+  const userMsgDiv = createUserMessageElement(messageToSend, fileToSend?.fileName, fileToSend?.isImage || false, previewUrl, isAudio, audioDuration);
   chatsContainer.appendChild(userMsgDiv);
   scrollToBottom();
   
-  // Afficher la réflexion du bot
-  const thinking = currentLang === 'fr' ? "🌿 Umuhinga examine..." : (currentLang === 'en' ? "🌿 Umuhinga is analyzing..." : "🌿 Umuhinga anachambua...");
-  const botMsgHTML = `<img class="avatar" src="assets/avatar.png" alt="Umuhinga" /> <p class="message-text">${thinking}</p>`;
-  const botMsgDiv = createMessageElement(botMsgHTML, "bot-message", "loading");
-  chatsContainer.appendChild(botMsgDiv);
+  const typingDiv = createMessageElement(`<div class="typing-indicator"><span></span><span></span><span></span></div>`, "bot-message", "typing-container");
+  chatsContainer.appendChild(typingDiv);
   scrollToBottom();
   
-  await generateGeminiResponse(messageToSend, botMsgDiv, fileToSend);
+  await generateGeminiResponse(messageToSend, null, fileToSend, typingDiv);
 };
 
-// ------------------- 7. Gestion fichiers (upload images) -------------------
-addFileBtn?.addEventListener("click", () => fileInput.click());
+// Setup audio button
+function setupAudioButton() {
+  if (!audioRecordBtn) return;
+  audioRecordBtn.addEventListener('click', startRecording);
+  document.body.addEventListener('click', (e) => {
+    if (e.target.closest('#audio-send-btn')) sendRecording();
+    if (e.target.closest('#audio-cancel-btn')) cancelRecording();
+  });
+}
 
+// Gestion fichiers
+addFileBtn?.addEventListener("click", () => fileInput.click());
 fileInput?.addEventListener("change", () => {
   const file = fileInput.files[0];
   if (!file) return;
-  
-  const isImage = file.type.startsWith("image/");
-  
-  if (!isImage) {
-    alert(currentLang === 'fr' ? "Seules les images sont supportées pour l'analyse." : "Only images are supported for analysis.");
-    fileInput.value = "";
-    return;
-  }
-  
-  const reader = new FileReader();
-  
-  reader.onload = (e) => {
-    const base64String = e.target.result.split(",")[1];
-    const previewUrl = e.target.result;
-    
-    const previewImg = fileUploadWrapper?.querySelector(".file-preview");
-    if (previewImg) previewImg.src = previewUrl;
-    
-    fileUploadWrapper?.classList.add("active", "img-attached");
-    
-    currentFile = {
-      fileName: file.name,
-      data: base64String,
-      mime_type: file.type,
-      isImage: true
+  if (file.type.startsWith("image/")) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target.result.split(",")[1];
+      const preview = e.target.result;
+      fileUploadWrapper.querySelector(".file-preview").src = preview;
+      fileUploadWrapper.classList.add("active", "img-attached");
+      currentFile = { fileName: file.name, data: base64, mime_type: file.type, isImage: true, isAudio: false };
+      fileInput.value = "";
     };
-    
-    console.log("📸 Image chargée:", file.name, file.type);
+    reader.readAsDataURL(file);
+  } else {
+    alert(currentLang === 'fr' ? 'Seules les images sont supportées' : 'Only images supported');
     fileInput.value = "";
-  };
-  
-  reader.readAsDataURL(file);
+  }
 });
 
 cancelFileBtn?.addEventListener("click", () => {
@@ -297,22 +443,10 @@ cancelFileBtn?.addEventListener("click", () => {
   fileUploadWrapper?.classList.remove("active", "img-attached", "file-attached");
 });
 
-// ------------------- 8. Événements -------------------
 stopResponseBtn?.addEventListener("click", () => {
   if (typingInterval) clearInterval(typingInterval);
   document.querySelector(".bot-message.loading")?.classList.remove("loading");
   document.body.classList.remove("bot-responding");
-});
-
-// Thème clair/sombre
-const isLightTheme = localStorage.getItem("themeColor") === "light_mode";
-document.body.classList.toggle("light-theme", isLightTheme);
-themeToggleBtn.textContent = isLightTheme ? "dark_mode" : "light_mode";
-
-themeToggleBtn.addEventListener("click", () => {
-  const isLight = document.body.classList.toggle("light-theme");
-  localStorage.setItem("themeColor", isLight ? "light_mode" : "dark_mode");
-  themeToggleBtn.textContent = isLight ? "dark_mode" : "light_mode";
 });
 
 deleteChatsBtn?.addEventListener("click", () => {
@@ -320,9 +454,9 @@ deleteChatsBtn?.addEventListener("click", () => {
   document.body.classList.remove("chats-active", "bot-responding");
   initConversation();
   if (typingInterval) clearInterval(typingInterval);
+  requestQueue = [];
 });
 
-// Suggestions
 document.querySelectorAll(".suggestions-item").forEach(sugg => {
   sugg.addEventListener("click", () => {
     promptInput.value = sugg.querySelector(".text").textContent;
@@ -330,15 +464,8 @@ document.querySelectorAll(".suggestions-item").forEach(sugg => {
   });
 });
 
-// Cacher les contrôles
-document.addEventListener("click", ({ target }) => {
-  const wrapper = document.querySelector(".prompt-wrapper");
-  if (wrapper && target.classList?.contains("prompt-input")) {
-    wrapper.classList.add("hide-controls");
-  } else if (wrapper && !target.classList?.contains("prompt-input")) {
-    wrapper.classList.remove("hide-controls");
-  }
-});
-
 promptForm.addEventListener("submit", handleFormSubmit);
+
+// Démarrage
+setupAudioButton();
 loadKnowledgeBase();
