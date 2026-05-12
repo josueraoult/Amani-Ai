@@ -1,4 +1,4 @@
-// scripts.js - Sogo Chat AI (version ultra-économique)
+// scripts.js - Umuhinga AI (version ultra-light sans knowledge.json)
 const container = document.querySelector(".container");
 const chatsContainer = document.querySelector(".chats-container");
 const promptForm = document.querySelector(".prompt-form");
@@ -13,16 +13,12 @@ const audioRecordBtn = document.querySelector("#audio-record-btn");
 
 // Configuration Gemini - Modèle économique
 const API_KEY = "AIzaSyAkxN8Qj4NymX1kJOl_dMZbbxc4sDB_-bk";
-const MODEL = "gemini-2.0-flash-lite"; // Modèle le plus économique en tokens
+const MODEL = "gemini-2.0-flash-lite";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
 let typingInterval = null;
-let knowledgeBase = { categories: [] };
 let conversationHistory = [];
 let currentFile = null;
-let lastRequestTime = 0;
-let requestQueue = [];
-let isProcessingQueue = false;
 
 // Détection langue
 const userLanguage = navigator.language || 'en';
@@ -30,43 +26,7 @@ const isFrench = userLanguage.startsWith('fr');
 const isEnglish = userLanguage.startsWith('en');
 const currentLang = isFrench ? 'fr' : (isEnglish ? 'en' : 'sw');
 
-// ----- Rate Limiting intelligent -----
-const MIN_DELAY_MS = 2000; // 2 secondes minimum entre requêtes
-const MAX_RETRIES = 3;
-
-async function waitForRateLimit() {
-  const now = Date.now();
-  const timeSinceLastRequest = now - lastRequestTime;
-  if (timeSinceLastRequest < MIN_DELAY_MS) {
-    await new Promise(resolve => setTimeout(resolve, MIN_DELAY_MS - timeSinceLastRequest));
-  }
-  lastRequestTime = Date.now();
-}
-
-async function queueRequest(fn) {
-  return new Promise((resolve, reject) => {
-    requestQueue.push({ fn, resolve, reject });
-    processQueue();
-  });
-}
-
-async function processQueue() {
-  if (isProcessingQueue || requestQueue.length === 0) return;
-  isProcessingQueue = true;
-  while (requestQueue.length > 0) {
-    await waitForRateLimit();
-    const { fn, resolve, reject } = requestQueue.shift();
-    try {
-      const result = await fn();
-      resolve(result);
-    } catch (error) {
-      reject(error);
-    }
-  }
-  isProcessingQueue = false;
-}
-
-// ----- Audio : enregistrement -----
+// ----- Audio : enregistrement et envoi comme fichier -----
 let mediaRecorder = null;
 let audioChunks = [];
 let recordingStartTime = null;
@@ -98,6 +58,9 @@ function ensureAudioModal() {
   return audioModal;
 }
 
+function showAudioModal() { ensureAudioModal().style.display = 'flex'; }
+function hideAudioModal() { if (audioModal) audioModal.style.display = 'none'; }
+
 function formatTime(seconds) {
   const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
   const secs = (seconds % 60).toString().padStart(2, '0');
@@ -111,7 +74,9 @@ function startRecording() {
       mediaRecorder = new MediaRecorder(stream);
       audioChunks = [];
       mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      mediaRecorder.onstop = () => stream.getTracks().forEach(t => t.stop());
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+      };
       mediaRecorder.start(100);
       isRecording = true;
       recordingStartTime = Date.now();
@@ -122,7 +87,7 @@ function startRecording() {
         const timerDiv = document.querySelector('.audio-timer');
         if (timerDiv) timerDiv.innerText = formatTime(elapsed);
       }, 1000);
-      ensureAudioModal().style.display = 'flex';
+      showAudioModal();
     })
     .catch(err => {
       console.error(err);
@@ -137,7 +102,7 @@ function cancelRecording() {
   }
   isRecording = false;
   clearInterval(recordingInterval);
-  if (audioModal) audioModal.style.display = 'none';
+  hideAudioModal();
 }
 
 async function sendRecording() {
@@ -162,7 +127,13 @@ async function sendRecording() {
       };
       
       const userMessageText = currentLang === 'fr' ? 'Message vocal' : 'Voice message';
-      const userMsgHTML = `<p class="message-text">${userMessageText}</p><div class="audio-message"><span class="material-symbols-rounded">mic</span><span class="audio-duration">${formatTime(duration)}</span></div>`;
+      const userMsgHTML = `
+        <p class="message-text">${userMessageText}</p>
+        <div class="audio-message">
+          <span class="material-symbols-rounded">mic</span>
+          <span class="audio-duration">${formatTime(duration)}</span>
+        </div>
+      `;
       const userMsgDiv = createMessageElement(userMsgHTML, "user-message");
       chatsContainer.appendChild(userMsgDiv);
       scrollToBottom();
@@ -178,44 +149,28 @@ async function sendRecording() {
       URL.revokeObjectURL(audioUrl);
     };
     reader.readAsDataURL(audioBlob);
-    if (audioModal) audioModal.style.display = 'none';
+    hideAudioModal();
   };
   mediaRecorder.stop();
   isRecording = false;
   clearInterval(recordingInterval);
 }
 
-// ----- Chargement knowledge.json (compressé) -----
-async function loadKnowledgeBase() {
-  try {
-    const response = await fetch('knowledge.json?t=' + Date.now());
-    if (!response.ok) throw new Error();
-    knowledgeBase = await response.json();
-    if (!knowledgeBase.categories) knowledgeBase.categories = [];
-    console.log("✅ Base chargée");
-  } catch (error) {
-    console.warn("Base introuvable");
-    knowledgeBase = { categories: [] };
-  }
-  initConversation();
+// Setup audio button
+function setupAudioButton() {
+  if (!audioRecordBtn) return;
+  audioRecordBtn.addEventListener('click', startRecording);
+  document.body.addEventListener('click', (e) => {
+    if (e.target.closest('#audio-send-btn')) sendRecording();
+    if (e.target.closest('#audio-cancel-btn')) cancelRecording();
+  });
 }
 
-// Prompt système ultra-court pour économiser les tokens
+// ----- Initialisation conversation (sans knowledge.json) -----
 function initConversation() {
-  let knowledgeText = "";
-  for (const cat of knowledgeBase.categories) {
-    for (const item of cat.items) {
-      knowledgeText += `${item.nom}: ${item.mots_cles.join(',')}|`;
-    }
-  }
+  const langInst = currentLang === 'fr' ? 'français' : (currentLang === 'en' ? 'english' : 'swahili');
+  const systemPrompt = `Assistant IA sage. Parle ${langInst}. Réponds en 2-3 phrases max, concis et utile. Pour la santé, conseille un médecin. Termine par 🕊️.`;
   
-  // Prompt système très concis (moins de 500 tokens)
-  const systemPrompt = `Sogo AI, assistant sage. Réponds en 2-3 phrases max.
-
-Savoir: ${knowledgeText.substring(0, 800)}
-
-Règles: ${currentLang === 'fr' ? 'Parle français. Santé→utilise savoir. Termine par 🕊️' : (currentLang === 'en' ? 'Speak English. Health→use knowledge. End with 🕊️' : 'Sema Kiswahili. Afya→tumia maarifa. Malizia na 🕊️')}`;
-
   conversationHistory = [
     { role: "user", parts: [{ text: systemPrompt }] },
     { role: "model", parts: [{ text: "🕊️" }] }
@@ -239,21 +194,28 @@ function escapeHtml(str) {
   return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
 }
 
-// Message user avec bouton réessayer
+// Création message user avec bouton réessayer
 function createUserMessageElement(message, file = null, isImage = false, imageData = null, isAudio = false, audioDuration = null) {
   const div = document.createElement("div");
   div.classList.add("message", "user-message");
   let inner = `<p class="message-text">${escapeHtml(message)}</p>`;
   
   if (isAudio && file) {
-    inner += `<div class="audio-message"><span class="material-symbols-rounded">mic</span><span class="audio-duration">${formatTime(audioDuration || 0)}</span></div>`;
+    inner += `<div class="audio-message">
+      <span class="material-symbols-rounded">mic</span>
+      <span class="audio-duration">${formatTime(audioDuration || 0)}</span>
+    </div>`;
   } else if (file && isImage && imageData) {
     inner += `<img src="${imageData}" class="img-attachment" style="max-width: 150px; border-radius: 12px; margin-top: 8px;" />`;
   }
   
-  inner += `<button class="retry-msg-btn" title="Retry"><span class="material-symbols-rounded">refresh</span></button>`;
+  inner += `<button class="retry-msg-btn" title="${currentLang === 'fr' ? 'Renvoyer' : 'Retry'}">
+    <span class="material-symbols-rounded">refresh</span>
+  </button>`;
   div.innerHTML = inner;
-  div.querySelector('.retry-msg-btn').addEventListener('click', () => retryUserMessage(message, file, isImage, imageData, isAudio, audioDuration));
+  
+  const retryBtn = div.querySelector('.retry-msg-btn');
+  retryBtn.addEventListener('click', () => retryUserMessage(message, file, isImage, imageData, isAudio, audioDuration));
   return div;
 }
 
@@ -262,7 +224,7 @@ async function retryUserMessage(message, file, isImage, imageData, isAudio, audi
   
   let fileToSend = null;
   if (isAudio && file) {
-    fileToSend = { fileName: file, data: imageData, mime_type: 'audio/webm', isAudio: true, duration: audioDuration };
+    fileToSend = { fileName: file, data: imageData, mime_type: 'audio/webm', isImage: false, isAudio: true, duration: audioDuration };
   } else if (file && isImage && imageData) {
     fileToSend = { fileName: file, data: imageData.split(',')[1], mime_type: 'image/jpeg', isImage: true };
   }
@@ -271,6 +233,7 @@ async function retryUserMessage(message, file, isImage, imageData, isAudio, audi
   chatsContainer.appendChild(typingDiv);
   scrollToBottom();
   document.body.classList.add("bot-responding");
+  
   await generateGeminiResponse(message, null, fileToSend, typingDiv);
 }
 
@@ -290,11 +253,40 @@ function typingEffect(text, textElement, onComplete) {
       typingInterval = null;
       if (onComplete) onComplete();
     }
-  }, 20); // Plus rapide
+  }, 20);
 }
 
-// Appel Gemini avec rate limiting et retry
-async function callGeminiWithRetry(payload, retryCount = 0) {
+// Appel Gemini optimisé (max tokens réduit)
+async function generateGeminiResponse(userMessage, botMsgDiv, attachedFile = null, typingIndicatorDiv = null) {
+  const messageParts = [];
+  // Limite le message à 200 caractères
+  if (userMessage && userMessage.trim()) {
+    messageParts.push({ text: userMessage.substring(0, 200) });
+  }
+  
+  if (attachedFile) {
+    if (attachedFile.isImage) {
+      messageParts.push({ inlineData: { mimeType: attachedFile.mime_type, data: attachedFile.data } });
+    } else if (attachedFile.isAudio) {
+      messageParts.push({ text: `[Audio ${formatTime(attachedFile.duration || 0)}]` });
+    }
+  }
+  
+  conversationHistory.push({ role: "user", parts: messageParts });
+  
+  // Historique limité à 10 messages max
+  if (conversationHistory.length > 12) {
+    conversationHistory = [conversationHistory[0], ...conversationHistory.slice(-9)];
+  }
+  
+  const payload = {
+    contents: conversationHistory,
+    generationConfig: { 
+      temperature: 0.5, 
+      maxOutputTokens: 200  // Réduit pour économie
+    }
+  };
+  
   try {
     const response = await fetch(API_URL, {
       method: "POST",
@@ -302,80 +294,35 @@ async function callGeminiWithRetry(payload, retryCount = 0) {
       body: JSON.stringify(payload)
     });
     
-    if (response.status === 429) { // Rate limit
-      if (retryCount < MAX_RETRIES) {
-        const waitTime = (retryCount + 1) * 3000;
-        console.log(`Rate limit, attente ${waitTime}ms...`);
-        await new Promise(resolve => setTimeout(resolve, waitTime));
-        return callGeminiWithRetry(payload, retryCount + 1);
-      }
-      throw new Error("Quota temporairement épuisé. Réessaie dans 1 minute.");
-    }
-    
     if (!response.ok) {
       const errData = await response.json();
       throw new Error(errData.error?.message || `HTTP ${response.status}`);
     }
     
-    return await response.json();
-  } catch (error) {
-    throw error;
-  }
-}
-
-async function generateGeminiResponse(userMessage, botMsgDiv, attachedFile = null, typingIndicatorDiv = null) {
-  return queueRequest(async () => {
-    const messageParts = [];
-    if (userMessage && userMessage.trim()) messageParts.push({ text: userMessage.substring(0, 200) }); // Limite la longueur
+    const data = await response.json();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!reply) throw new Error("Réponse vide");
     
-    if (attachedFile?.isImage) {
-      messageParts.push({ inlineData: { mimeType: attachedFile.mime_type, data: attachedFile.data } });
-    } else if (attachedFile?.isAudio) {
-      messageParts.push({ text: `[Audio ${formatTime(attachedFile.duration || 0)}]` });
-    }
+    conversationHistory.push({ role: "model", parts: [{ text: reply }] });
     
-    conversationHistory.push({ role: "user", parts: messageParts });
+    if (typingIndicatorDiv && typingIndicatorDiv.parentNode) typingIndicatorDiv.remove();
     
-    // Historique très limité (max 8 messages)
-    if (conversationHistory.length > 10) {
-      conversationHistory = [conversationHistory[0], ...conversationHistory.slice(-7)];
-    }
-    
-    const payload = {
-      contents: conversationHistory,
-      generationConfig: { temperature: 0.5, maxOutputTokens: 200 } // Réduit pour économie
-    };
-    
-    try {
-      const data = await callGeminiWithRetry(payload);
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!reply) throw new Error("Réponse vide");
-      
-      conversationHistory.push({ role: "model", parts: [{ text: reply }] });
-      
-      if (typingIndicatorDiv?.parentNode) typingIndicatorDiv.remove();
-      
-      const finalBotDiv = createMessageElement(`<img class="avatar" src="assets/avatar.png" alt="Sogo" /><p class="message-text"></p>`, "bot-message");
-      chatsContainer.appendChild(finalBotDiv);
-      scrollToBottom();
-      const textElement = finalBotDiv.querySelector(".message-text");
-      
-      return new Promise((resolve) => {
-        typingEffect(reply, textElement, () => {
-          document.body.classList.remove("bot-responding");
-          resolve();
-        });
-      });
-    } catch (error) {
-      console.error("Erreur:", error);
-      if (typingIndicatorDiv?.parentNode) typingIndicatorDiv.remove();
-      const errorMsg = currentLang === 'fr' ? `⚠️ ${error.message.substring(0, 80)}` : `⚠️ ${error.message.substring(0, 80)}`;
-      const errorDiv = createMessageElement(`<img class="avatar" src="assets/avatar.png" alt="Sogo" /><p class="message-text" style="color:#d62939;">${errorMsg}</p>`, "bot-message");
-      chatsContainer.appendChild(errorDiv);
-      scrollToBottom();
+    const finalBotDiv = createMessageElement(`<img class="avatar" src="assets/avatar.png" alt="Umuhinga" /><p class="message-text"></p>`, "bot-message");
+    chatsContainer.appendChild(finalBotDiv);
+    scrollToBottom();
+    const textElement = finalBotDiv.querySelector(".message-text");
+    typingEffect(reply, textElement, () => {
       document.body.classList.remove("bot-responding");
-    }
-  });
+    });
+  } catch (error) {
+    console.error("Erreur Gemini:", error);
+    if (typingIndicatorDiv && typingIndicatorDiv.parentNode) typingIndicatorDiv.remove();
+    const errorMsg = currentLang === 'fr' ? `Erreur: ${error.message.substring(0, 100)}` : `Error: ${error.message.substring(0, 100)}`;
+    const errorDiv = createMessageElement(`<img class="avatar" src="assets/avatar.png" alt="Umuhinga" /><p class="message-text" style="color:#d62939;">${errorMsg}</p>`, "bot-message");
+    chatsContainer.appendChild(errorDiv);
+    scrollToBottom();
+    document.body.classList.remove("bot-responding");
+  }
 }
 
 // Gestion envoi formulaire
@@ -384,7 +331,7 @@ const handleFormSubmit = async (e) => {
   const userMessage = promptInput.value.trim();
   if ((!userMessage && !currentFile) || document.body.classList.contains("bot-responding")) return;
   
-  const messageToSend = userMessage || (currentFile?.isImage ? "Image" : (currentFile?.isAudio ? "Audio" : "Message"));
+  const messageToSend = userMessage || (currentFile?.isImage ? (currentLang === 'fr' ? "Image" : "Image") : (currentLang === 'fr' ? "Audio" : "Audio"));
   const fileToSend = currentFile;
   const previewUrl = fileUploadWrapper?.querySelector(".file-preview")?.src;
   const isAudio = fileToSend?.isAudio || false;
@@ -406,17 +353,7 @@ const handleFormSubmit = async (e) => {
   await generateGeminiResponse(messageToSend, null, fileToSend, typingDiv);
 };
 
-// Setup audio button
-function setupAudioButton() {
-  if (!audioRecordBtn) return;
-  audioRecordBtn.addEventListener('click', startRecording);
-  document.body.addEventListener('click', (e) => {
-    if (e.target.closest('#audio-send-btn')) sendRecording();
-    if (e.target.closest('#audio-cancel-btn')) cancelRecording();
-  });
-}
-
-// Gestion fichiers
+// Gestion fichiers (images)
 addFileBtn?.addEventListener("click", () => fileInput.click());
 fileInput?.addEventListener("change", () => {
   const file = fileInput.files[0];
@@ -428,12 +365,18 @@ fileInput?.addEventListener("change", () => {
       const preview = e.target.result;
       fileUploadWrapper.querySelector(".file-preview").src = preview;
       fileUploadWrapper.classList.add("active", "img-attached");
-      currentFile = { fileName: file.name, data: base64, mime_type: file.type, isImage: true, isAudio: false };
+      currentFile = {
+        fileName: file.name,
+        data: base64,
+        mime_type: file.type,
+        isImage: true,
+        isAudio: false
+      };
       fileInput.value = "";
     };
     reader.readAsDataURL(file);
   } else {
-    alert(currentLang === 'fr' ? 'Seules les images sont supportées' : 'Only images supported');
+    alert(currentLang === 'fr' ? "Seules les images sont supportées" : "Only images supported");
     fileInput.value = "";
   }
 });
@@ -454,7 +397,6 @@ deleteChatsBtn?.addEventListener("click", () => {
   document.body.classList.remove("chats-active", "bot-responding");
   initConversation();
   if (typingInterval) clearInterval(typingInterval);
-  requestQueue = [];
 });
 
 document.querySelectorAll(".suggestions-item").forEach(sugg => {
@@ -467,5 +409,5 @@ document.querySelectorAll(".suggestions-item").forEach(sugg => {
 promptForm.addEventListener("submit", handleFormSubmit);
 
 // Démarrage
+initConversation();
 setupAudioButton();
-loadKnowledgeBase();
